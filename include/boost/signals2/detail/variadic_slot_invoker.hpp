@@ -22,15 +22,9 @@
 
 // if compiler has std::tuple use it instead of boost::tuple
 // because boost::tuple does not have variadic template support at present.
-#ifdef BOOST_NO_CXX11_HDR_TUPLE
-#include <boost/tuple/tuple.hpp>
-#define BOOST_SIGNALS2_TUPLE boost::tuple
-#define BOOST_SIGNALS2_GET boost::get
-#else
 #include <tuple>
 #define BOOST_SIGNALS2_TUPLE std::tuple
 #define BOOST_SIGNALS2_GET std::get
-#endif
 
 // vc12 seems to erroneously report formal parameters as unreferenced (warning C4100)
 // if parameters of variadic template functions are only referenced by calling

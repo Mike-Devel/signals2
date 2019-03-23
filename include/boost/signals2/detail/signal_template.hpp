@@ -13,11 +13,7 @@
 
 // This file is included iteratively, and should not be protected from multiple inclusion
 
-#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-#define BOOST_SIGNALS2_NUM_ARGS BOOST_PP_ITERATION()
-#else
 #define BOOST_SIGNALS2_NUM_ARGS 1
-#endif
 
 // R, T1, T2, ..., TN, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION \
@@ -311,69 +307,6 @@ namespace boost
       private:
         typedef Mutex mutex_type;
 
-        // slot_invoker is passed to slot_call_iterator_t to run slots
-#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-        class slot_invoker
-        {
-        public:
-          typedef nonvoid_slot_result_type result_type;
-// typename add_reference<Tn>::type
-#define BOOST_SIGNALS2_ADD_REF_TYPE(z, n, data) \
-  typename add_reference<BOOST_PP_CAT(T, BOOST_PP_INC(n))>::type
-// typename add_reference<Tn>::type argn
-#define BOOST_SIGNALS2_ADD_REF_ARG(z, n, data) \
-  BOOST_SIGNALS2_ADD_REF_TYPE(~, n, ~) \
-  BOOST_SIGNALS2_SIGNATURE_ARG_NAME(~, n, ~)
-// typename add_reference<T1>::type arg1, typename add_reference<T2>::type arg2, ..., typename add_reference<Tn>::type argn
-#define BOOST_SIGNALS2_ADD_REF_ARGS(arity) \
-  BOOST_PP_ENUM(arity, BOOST_SIGNALS2_ADD_REF_ARG, ~)
-          slot_invoker(BOOST_SIGNALS2_ADD_REF_ARGS(BOOST_SIGNALS2_NUM_ARGS)) BOOST_PP_EXPR_IF(BOOST_SIGNALS2_NUM_ARGS, :)
-#undef BOOST_SIGNALS2_ADD_REF_ARGS
-
-// m_argn
-#define BOOST_SIGNALS2_M_ARG_NAME(z, n, data) BOOST_PP_CAT(m_arg, BOOST_PP_INC(n))
-// m_argn ( argn )
-#define BOOST_SIGNALS2_MISC_STATEMENT(z, n, data) \
-  BOOST_SIGNALS2_M_ARG_NAME(~, n, ~) ( BOOST_SIGNALS2_SIGNATURE_ARG_NAME(~, n, ~) )
-// m_arg1(arg1), m_arg2(arg2), ..., m_argn(argn)
-            BOOST_PP_ENUM(BOOST_SIGNALS2_NUM_ARGS, BOOST_SIGNALS2_MISC_STATEMENT, ~)
-#undef BOOST_SIGNALS2_MISC_STATEMENT
-          {}
-          result_type operator ()(const connection_body_type &connectionBody) const
-          {
-            return m_invoke<typename slot_type::result_type>(connectionBody);
-          }
-        private:
-          // declare assignment operator private since this class might have reference or const members
-          slot_invoker & operator=(const slot_invoker &);
-
-#define BOOST_SIGNALS2_ADD_REF_M_ARG_STATEMENT(z, n, data) \
-  BOOST_SIGNALS2_ADD_REF_TYPE(~, n, ~) BOOST_SIGNALS2_M_ARG_NAME(~, n, ~) ;
-          BOOST_PP_REPEAT(BOOST_SIGNALS2_NUM_ARGS, BOOST_SIGNALS2_ADD_REF_M_ARG_STATEMENT, ~)
-#undef BOOST_SIGNALS2_ADD_REF_M_ARG_STATEMENT
-#undef BOOST_SIGNALS2_ADD_REF_ARG
-#undef BOOST_SIGNALS2_ADD_REF_TYPE
-
-// m_arg1, m_arg2, ..., m_argn
-#define BOOST_SIGNALS2_M_ARG_NAMES(arity) BOOST_PP_ENUM(arity, BOOST_SIGNALS2_M_ARG_NAME, ~)
-          template<typename SlotResultType>
-          result_type m_invoke(const connection_body_type &connectionBody,
-            typename boost::enable_if<boost::is_void<SlotResultType> >::type * = 0) const
-          {
-            connectionBody->slot().slot_function()(BOOST_SIGNALS2_M_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
-            return void_type();
-          }
-          template<typename SlotResultType>
-          result_type m_invoke(const connection_body_type &connectionBody, 
-            typename boost::disable_if<boost::is_void<SlotResultType> >::type * = 0) const
-          {
-            return connectionBody->slot().slot_function()(BOOST_SIGNALS2_M_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
-          }
-        };
-#undef BOOST_SIGNALS2_M_ARG_NAMES
-#undef BOOST_SIGNALS2_M_ARG_NAME
-
-#endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES
         // a struct used to optimize (minimize) the number of shared_ptrs that need to be created
         // inside operator()
         class invocation_state
@@ -622,38 +555,12 @@ namespace boost
         slot_call_iterator;
       typedef typename mpl::identity<BOOST_SIGNALS2_SIGNATURE_FUNCTION_TYPE(BOOST_SIGNALS2_NUM_ARGS)>::type signature_type;
 
-#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-
-// typedef Tn argn_type;
-#define BOOST_SIGNALS2_MISC_STATEMENT(z, n, data) \
-  typedef BOOST_PP_CAT(T, BOOST_PP_INC(n)) BOOST_PP_CAT(BOOST_PP_CAT(arg, BOOST_PP_INC(n)), _type);
-      BOOST_PP_REPEAT(BOOST_SIGNALS2_NUM_ARGS, BOOST_SIGNALS2_MISC_STATEMENT, ~)
-#undef BOOST_SIGNALS2_MISC_STATEMENT
-#if BOOST_SIGNALS2_NUM_ARGS == 1
-      typedef arg1_type argument_type;
-#elif BOOST_SIGNALS2_NUM_ARGS == 2
-      typedef arg1_type first_argument_type;
-      typedef arg2_type second_argument_type;
-#endif
-
-      template<unsigned n> class arg : public
-        detail::BOOST_SIGNALS2_PREPROCESSED_ARG_N_TYPE_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
-        <n BOOST_SIGNALS2_PP_COMMA_IF(BOOST_SIGNALS2_NUM_ARGS)
-        BOOST_SIGNALS2_ARGS_TEMPLATE_INSTANTIATION(BOOST_SIGNALS2_NUM_ARGS)>
-      {};
-
-      BOOST_STATIC_CONSTANT(int, arity = BOOST_SIGNALS2_NUM_ARGS);
-
-#else // BOOST_NO_CXX11_VARIADIC_TEMPLATES
-
       template<unsigned n> class arg
       {
       public:
         typedef typename detail::variadic_arg_type<n, Args...>::type type;
       };
       BOOST_STATIC_CONSTANT(int, arity = sizeof...(Args));
-
-#endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES
 
       BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const combiner_type &combiner_arg = combiner_type(),
         const group_compare_type &group_compare = group_compare_type()):
@@ -662,17 +569,16 @@ namespace boost
       virtual ~BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)()
       {
       }
-      
+
       //move support
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
       BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(
         BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) && other)
       {
         using std::swap;
         swap(_pimpl, other._pimpl);
       }
-      
-      BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) & 
+
+      BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) &
         operator=(BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) && rhs)
       {
         if(this == &rhs)
@@ -684,8 +590,7 @@ namespace boost
         swap(_pimpl, rhs._pimpl);
         return *this;
       }
-#endif // !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-      
+
       connection connect(const slot_type &slot, connect_position position = at_back)
       {
         return (*_pimpl).connect(slot, position);
@@ -756,17 +661,6 @@ namespace boost
         _pimpl;
     };
 
-#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-    // free swap function for signalN classes, findable by ADL
-    template<BOOST_SIGNALS2_SIGNAL_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS)>
-      void swap(
-        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig1,
-        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig2 )
-    {
-      sig1.swap(sig2);
-    }
-#endif
-
     namespace detail
     {
       // wrapper class for storing other signals as slots with automatic lifetime tracking
@@ -807,51 +701,9 @@ namespace boost
           <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> > _weak_pimpl;
       };
 
-#ifndef BOOST_NO_CXX11_VARIADIC_TEMPLATES
       template<int arity, typename Signature>
         class extended_signature: public variadic_extended_signature<Signature>
       {};
-#else // BOOST_NO_CXX11_VARIADIC_TEMPLATES
-      template<int arity, typename Signature>
-        class extended_signature;
-      // partial template specialization
-      template<typename Signature>
-        class extended_signature<BOOST_SIGNALS2_NUM_ARGS, Signature>
-      {
-      public:
-// typename function_traits<Signature>::result_type (
-// const boost::signals2::connection &,
-// typename function_traits<Signature>::arg1_type,
-// typename function_traits<Signature>::arg2_type,
-// ...,
-// typename function_traits<Signature>::argn_type)
-#define BOOST_SIGNALS2_EXT_SIGNATURE(arity, Signature) \
-  typename function_traits<Signature>::result_type ( \
-  const boost::signals2::connection & BOOST_SIGNALS2_PP_COMMA_IF(BOOST_SIGNALS2_NUM_ARGS) \
-  BOOST_PP_ENUM(arity, BOOST_SIGNALS2_SIGNATURE_TO_ARGN_TYPE, Signature) )
-        typedef function<BOOST_SIGNALS2_EXT_SIGNATURE(BOOST_SIGNALS2_NUM_ARGS, Signature)> function_type;
-#undef BOOST_SIGNALS2_EXT_SIGNATURE
-      };
-
-      template<unsigned arity, typename Signature, typename Combiner,
-        typename Group, typename GroupCompare, typename SlotFunction,
-        typename ExtendedSlotFunction, typename Mutex>
-      class signalN;
-      // partial template specialization
-      template<typename Signature, typename Combiner, typename Group,
-        typename GroupCompare, typename SlotFunction,
-        typename ExtendedSlotFunction, typename Mutex>
-      class signalN<BOOST_SIGNALS2_NUM_ARGS, Signature, Combiner, Group,
-        GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex>
-      {
-      public:
-        typedef BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)<
-          BOOST_SIGNALS2_PORTABLE_SIGNATURE(BOOST_SIGNALS2_NUM_ARGS, Signature),
-          Combiner, Group,
-          GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex> type;
-      };
-
-#endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES
 
     } // namespace detail
   } // namespace signals2
