@@ -16,23 +16,30 @@
 #ifndef BOOST_SIGNALS2_MUTEX_HPP
 #define BOOST_SIGNALS2_MUTEX_HPP
 
-// MS compatible compilers support #pragma once
+//#include <boost/config.hpp>
+//
+//#if !defined(BOOST_HAS_THREADS)
+//# include <boost/signals2/detail/lwm_nop.hpp>
+//#elif defined(BOOST_HAS_PTHREADS)
+//#  include <boost/signals2/detail/lwm_pthreads.hpp>
+//#elif defined(BOOST_HAS_WINTHREADS)
+//#  include <boost/signals2/detail/lwm_win32_cs.hpp>
+//#else
+//// Use #define BOOST_DISABLE_THREADS to avoid the error
+//#  error Unrecognized threading platform
+//#endif
+#include<mutex>
 
-#if defined(_MSC_VER)
-# pragma once
-#endif
+namespace boost
+{
 
-#include <boost/config.hpp>
+	namespace signals2
+	{
 
-#if !defined(BOOST_HAS_THREADS)
-# include <boost/signals2/detail/lwm_nop.hpp>
-#elif defined(BOOST_HAS_PTHREADS)
-#  include <boost/signals2/detail/lwm_pthreads.hpp>
-#elif defined(BOOST_HAS_WINTHREADS)
-#  include <boost/signals2/detail/lwm_win32_cs.hpp>
-#else
-// Use #define BOOST_DISABLE_THREADS to avoid the error
-#  error Unrecognized threading platform
-#endif
+		using std::mutex;
+
+	} // namespace signals2
+
+} // namespace boost
 
 #endif // #ifndef BOOST_SIGNALS2_MUTEX_HPP

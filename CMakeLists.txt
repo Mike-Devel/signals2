@@ -14,6 +14,8 @@ add_library( Boost::signals2 ALIAS boost_signals2 )
 
 target_include_directories( boost_signals2 INTERFACE include )
 
+find_package(Threads REQUIRED)
+
 target_link_libraries( boost_signals2
     INTERFACE
         Boost::assert
@@ -32,6 +34,7 @@ target_link_libraries( boost_signals2
         Boost::tuple
         Boost::type_traits
         Boost::variant
+		Threads::Threads
 )
 
 target_compile_features(boost_signals2 INTERFACE cxx_std_17 )
