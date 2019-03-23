@@ -15,6 +15,8 @@
 #ifndef BOOST_SIGNALS2_PREDESTRUCTIBLE_HPP
 #define BOOST_SIGNALS2_PREDESTRUCTIBLE_HPP
 
+#include <boost/smart_ptr/shared_ptr.hpp>
+
 namespace boost
 {
   namespace signals2

@@ -12,13 +12,6 @@
 #ifndef BOOST_SIGNALS2_SIGNAL_HPP
 #define BOOST_SIGNALS2_SIGNAL_HPP
 
-#include <algorithm>
-#include <boost/assert.hpp>
-#include <boost/config.hpp>
-#include <boost/function.hpp>
-#include <boost/mpl/identity.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/signals2/detail/replace_slot_function.hpp>
@@ -30,7 +23,7 @@
 #include <boost/signals2/optional_last_value.hpp>
 #include <boost/signals2/mutex.hpp>
 #include <boost/signals2/slot.hpp>
-#include <functional>
+
 
 #include <boost/signals2/variadic_signal.hpp>
 
