@@ -42,24 +42,7 @@ namespace boost
             BOOST_SIGNALS2_FORWARDED_ARGS(BOOST_SIGNALS2_NUM_ARGS));
         }
       };
-#ifdef BOOST_NO_VOID_RETURNS
-      template<>
-        class BOOST_SIGNALS2_BOUND_EXTENDED_SLOT_FUNCTION_INVOKER_N(BOOST_SIGNALS2_NUM_ARGS)<void>
-      {
-      public:
-        typedef result_type_wrapper<void>::type result_type;
-        template<typename ExtendedSlotFunction BOOST_SIGNALS2_PP_COMMA_IF(BOOST_SIGNALS2_NUM_ARGS)
-          BOOST_SIGNALS2_ARGS_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS)>
-          result_type operator()(ExtendedSlotFunction &func, const connection &conn
-            BOOST_SIGNALS2_PP_COMMA_IF(BOOST_SIGNALS2_NUM_ARGS)
-            BOOST_SIGNALS2_FULL_FORWARD_ARGS(BOOST_SIGNALS2_NUM_ARGS)) const
-        {
-          func(conn BOOST_SIGNALS2_PP_COMMA_IF(BOOST_SIGNALS2_NUM_ARGS)
-            BOOST_SIGNALS2_FORWARDED_ARGS(BOOST_SIGNALS2_NUM_ARGS));
-          return result_type();
-        }
-      };
-#endif
+
 // wrapper around an signalN::extended_slot_function which binds the
 // connection argument so it looks like a normal
 // signalN::slot_function

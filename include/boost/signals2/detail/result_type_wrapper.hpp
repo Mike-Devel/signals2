@@ -34,12 +34,6 @@ namespace boost {
       struct result_type_wrapper {
         typedef R type;
       };
-#ifdef BOOST_NO_VOID_RETURNS
-      template<>
-      struct result_type_wrapper<void> {
-        typedef void_type type;
-      };
-#endif
 
       // specialization deals with possible void return from combiners
       template<typename R> class combiner_invoker

@@ -18,9 +18,7 @@
 #include <boost/smart_ptr/bad_weak_ptr.hpp>
 #include <boost/utility/swap.hpp>
 
-#ifndef BOOST_NO_CXX11_SMART_PTR
 #include <memory>
-#endif
 
 namespace boost
 {
@@ -35,12 +33,10 @@ namespace boost
     {
       typedef boost::shared_ptr<T> shared_type;
     };
-#ifndef BOOST_NO_CXX11_SMART_PTR
     template<typename T> struct weak_ptr_traits<std::weak_ptr<T> >
     {
       typedef std::shared_ptr<T> shared_type;
     };
-#endif
 
     template<typename SharedPtr> struct shared_ptr_traits
     {};
@@ -49,12 +45,10 @@ namespace boost
     {
       typedef boost::weak_ptr<T> weak_type;
     };
-#ifndef BOOST_NO_CXX11_SMART_PTR
     template<typename T> struct shared_ptr_traits<std::shared_ptr<T> >
     {
       typedef std::weak_ptr<T> weak_type;
     };
-#endif
 
     namespace detail
     {
