@@ -7,7 +7,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/minimal.hpp>
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -24,7 +24,7 @@ private:
   int constant;
 };
 
-void do_delayed_connect(boost::shared_ptr<with_constant> &wc,
+void do_delayed_connect(std::shared_ptr<with_constant> &wc,
                         sig_type& sig,
                         sig_type::slot_type slot)
 {
@@ -38,7 +38,7 @@ void do_delayed_connect(boost::shared_ptr<with_constant> &wc,
 int test_main(int, char*[])
 {
   sig_type s1;
-  boost::shared_ptr<with_constant> wc1(new with_constant(7));
+  std::shared_ptr<with_constant> wc1(new with_constant(7));
 
   do_delayed_connect(wc1, s1, sig_type::slot_type(&with_constant::add, wc1.get(), _1).track(wc1));
 

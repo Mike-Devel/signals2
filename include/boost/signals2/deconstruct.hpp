@@ -3,8 +3,8 @@
 
 //  deconstruct.hpp
 //
-// A factory function for creating a shared_ptr which creates
-// an object and its owning shared_ptr with one allocation, similar
+// A factory function for creating a std::shared_ptr which creates
+// an object and its owning std::shared_ptr with one allocation, similar
 // to make_shared<T>().  It also supports postconstructors
 // and predestructors through unqualified calls of adl_postconstruct() and
 // adl_predestruct, relying on argument-dependent
@@ -25,7 +25,7 @@
 //  for more information
 
 #include <boost/config.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/type_with_alignment.hpp>
@@ -49,11 +49,11 @@ template<typename T>
     class postconstructor_invoker
 {
 public:
-    operator const shared_ptr<T> & () const
+    operator const std::shared_ptr<T> & () const
     {
         return postconstruct();
     }
-    const shared_ptr<T>& postconstruct() const
+    const std::shared_ptr<T>& postconstruct() const
     {
         if(!_postconstructed)
         {
@@ -63,7 +63,7 @@ public:
         return _sp;
     }
     template<class... Args>
-      const shared_ptr<T>& postconstruct(Args && ... args) const
+      const std::shared_ptr<T>& postconstruct(Args && ... args) const
     {
         if(!_postconstructed)
         {
@@ -75,10 +75,10 @@ public:
     }
 private:
     friend class boost::signals2::deconstruct_access;
-    postconstructor_invoker(const shared_ptr<T> & sp):
+    postconstructor_invoker(const std::shared_ptr<T> & sp):
         _sp(sp), _postconstructed(false)
     {}
-    shared_ptr<T> _sp;
+    std::shared_ptr<T> _sp;
     mutable bool _postconstructed;
 };
 
@@ -101,18 +101,25 @@ private:
     typedef typename sp_aligned_storage< sizeof( T ), ::boost::alignment_of< T >::value >::type storage_type;
 
     bool initialized_;
-    storage_type storage_;
+    T* storage_;
 
 private:
 
     void destroy()
     {
-        if( initialized_ )
+        //if( initialized_ )
+        //{
+        //    T* p = reinterpret_cast< T* >( storage_.data_ );
+        //    using boost::signals2::detail::adl_predestruct;
+        //    adl_predestruct(const_cast<typename boost::remove_const<T>::type *>(p));
+        //    p->~T();
+        //    initialized_ = false;
+        //}
+        if (initialized_)
         {
-            T* p = reinterpret_cast< T* >( storage_.data_ );
             using boost::signals2::detail::adl_predestruct;
-            adl_predestruct(const_cast<typename boost::remove_const<T>::type *>(p));
-            p->~T();
+            adl_predestruct(const_cast<typename boost::remove_const<T>::type *>(storage_));
+            delete storage_;
             initialized_ = false;
         }
     }
@@ -139,9 +146,14 @@ public:
         destroy();
     }
 
-    void * address()
+    //void * address()
+    //{
+    //    return storage_.data_;
+    //}
+
+    void set_address(T* addr)
     {
-        return storage_.data_;
+        storage_ = addr;
     }
 
     void set_initialized()
@@ -155,41 +167,57 @@ class deconstruct_access
 {
 public:
 
-    template< class T >
-    static postconstructor_invoker<T> deconstruct()
-    {
-        boost::shared_ptr< T > pt( static_cast< T* >( 0 ), detail::deconstruct_deleter< T >() );
+    //template< class T >
+    //static postconstructor_invoker<T> deconstruct()
+    //{
+    //    std::shared_ptr< T > pt( static_cast< T* >( 0 ), detail::deconstruct_deleter< T >() );
 
-        detail::deconstruct_deleter< T > * pd = boost::get_deleter< detail::deconstruct_deleter< T > >( pt );
+    //    detail::deconstruct_deleter< T > * pd = std::get_deleter< detail::deconstruct_deleter< T > >( pt );
 
-        void * pv = pd->address();
+    //    void * pv = pd->address();
 
-        new( pv ) T();
-        pd->set_initialized();
+    //    new( pv ) T();
+    //    pd->set_initialized();
 
-        boost::shared_ptr< T > retval( pt, static_cast< T* >( pv ) );
-        boost::detail::sp_enable_shared_from_this(&retval, retval.get(), retval.get());
-        return retval;
+    //    std::shared_ptr< T > retval( pt, static_cast< T* >( pv ) );
+    //    boost::detail::sp_enable_shared_from_this(&retval, retval.get(), retval.get());
+    //    return retval;
 
-    }
+    //}
 
     // Variadic templates, rvalue reference
 
+    //template< class T, class... Args >
+    //static postconstructor_invoker<T> deconstruct( Args && ... args )
+    //{
+    //    std::shared_ptr< T > pt( static_cast< T* >( 0 ), detail::deconstruct_deleter< T >() );
+
+    //    detail::deconstruct_deleter< T > * pd = std::get_deleter< detail::deconstruct_deleter< T > >( pt );
+
+    //    void * pv = pd->address();
+
+    //    new( pv ) T( std::forward<Args>( args )... );
+    //    pd->set_initialized();
+
+    //    std::shared_ptr< T > retval( pt, static_cast< T* >( pv ) );
+    //    //boost::detail::sp_enable_shared_from_this(&retval, retval.get(), retval.get());
+    //    return retval;
+    //}
+
     template< class T, class... Args >
-    static postconstructor_invoker<T> deconstruct( Args && ... args )
+    static postconstructor_invoker<T> deconstruct(Args && ... args)
     {
-        boost::shared_ptr< T > pt( static_cast< T* >( 0 ), detail::deconstruct_deleter< T >() );
+        std::shared_ptr< T > pt(new T(std::forward<Args>(args)...), detail::deconstruct_deleter< T >());
 
-        detail::deconstruct_deleter< T > * pd = boost::get_deleter< detail::deconstruct_deleter< T > >( pt );
+        detail::deconstruct_deleter< T > * pd = std::get_deleter< detail::deconstruct_deleter< T > >(pt);
 
-        void * pv = pd->address();
+        pd->set_address(pt.get());
 
-        new( pv ) T( std::forward<Args>( args )... );
         pd->set_initialized();
 
-        boost::shared_ptr< T > retval( pt, static_cast< T* >( pv ) );
-        boost::detail::sp_enable_shared_from_this(&retval, retval.get(), retval.get());
-        return retval;
+
+        //boost::detail::sp_enable_shared_from_this(&retval, retval.get(), retval.get());
+        return pt;
     }
 
 

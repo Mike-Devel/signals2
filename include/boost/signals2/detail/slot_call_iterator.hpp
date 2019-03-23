@@ -24,7 +24,6 @@
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
-#include <boost/weak_ptr.hpp>
 
 namespace boost {
   namespace signals2 {

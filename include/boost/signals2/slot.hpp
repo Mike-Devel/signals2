@@ -22,7 +22,6 @@
 #include <boost/signals2/detail/tracked_objects_visitor.hpp>
 #include <boost/signals2/slot_base.hpp>
 #include <boost/visit_each.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include <boost/signals2/variadic_slot.hpp>
 

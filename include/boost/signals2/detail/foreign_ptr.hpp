@@ -1,5 +1,5 @@
 
-//  helper code for dealing with tracking non-boost shared_ptr/weak_ptr
+//  helper code for dealing with tracking non-boost std::shared_ptr/weak_ptr
 
 // Copyright Frank Mori Hess 2009.
 // Distributed under the Boost Software License, Version
@@ -22,17 +22,10 @@
 
 namespace boost
 {
-  template<typename T> class shared_ptr;
-  template<typename T> class weak_ptr;
-
   namespace signals2
   {
     template<typename WeakPtr> struct weak_ptr_traits
     {};
-    template<typename T> struct weak_ptr_traits<boost::weak_ptr<T> >
-    {
-      typedef boost::shared_ptr<T> shared_type;
-    };
     template<typename T> struct weak_ptr_traits<std::weak_ptr<T> >
     {
       typedef std::shared_ptr<T> shared_type;
@@ -41,10 +34,6 @@ namespace boost
     template<typename SharedPtr> struct shared_ptr_traits
     {};
 
-    template<typename T> struct shared_ptr_traits<boost::shared_ptr<T> >
-    {
-      typedef boost::weak_ptr<T> weak_type;
-    };
     template<typename T> struct shared_ptr_traits<std::shared_ptr<T> >
     {
       typedef std::weak_ptr<T> weak_type;

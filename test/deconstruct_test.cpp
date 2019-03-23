@@ -7,8 +7,7 @@
 
 // See http://www.boost.org/libs/signals2 for library home page.
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/signals2/deconstruct.hpp>
 #include <boost/signals2/deconstruct_ptr.hpp>
 #include <boost/test/minimal.hpp>
@@ -76,13 +75,13 @@ namespace mytest
   {
   public:
     template<typename T> friend
-      void adl_postconstruct(const boost::shared_ptr<T> &sp, A *p)
+      void adl_postconstruct(const std::shared_ptr<T> &sp, A *p)
     {
       BOOST_CHECK(!p->_postconstructed);
       p->_postconstructed = true;
     }
     template<typename T> friend
-      void adl_postconstruct(const boost::shared_ptr<T> &sp, A *p, int val)
+      void adl_postconstruct(const std::shared_ptr<T> &sp, A *p, int val)
     {
       p->value = val;
       BOOST_CHECK(!p->_postconstructed);
@@ -113,55 +112,56 @@ namespace mytest
 void deconstruct_ptr_test()
 {
   {
-    boost::shared_ptr<X> x = boost::signals2::deconstruct_ptr(new X);
+    std::shared_ptr<X> x = boost::signals2::deconstruct_ptr(new X);
   }
   {
-    boost::shared_ptr<Y> x = boost::signals2::deconstruct_ptr(new Y);
+    std::shared_ptr<Y> x = boost::signals2::deconstruct_ptr(new Y);
   }
   {
-    boost::shared_ptr<Z> z = boost::signals2::deconstruct_ptr(new Z);
+    std::shared_ptr<Z> z = boost::signals2::deconstruct_ptr(new Z);
   }
 }
 
-class deconstructed_esft : public boost::enable_shared_from_this<deconstructed_esft>
+class deconstructed_esft : public std::enable_shared_from_this<deconstructed_esft>
 {
 public:
   deconstructed_esft() : x(0) {}
 
 private:
-  friend void adl_postconstruct(boost::shared_ptr<void>, deconstructed_esft *) {}
+  friend void adl_postconstruct(std::shared_ptr<void>, deconstructed_esft *) {}
   int x;
 };
 
 void deconstruct_test()
 {
   {
-    boost::shared_ptr<X> x = boost::signals2::deconstruct<X>();
+   std::shared_ptr<X> x = boost::signals2::deconstruct<X>();
   }
   {
-    boost::shared_ptr<Y> x = boost::signals2::deconstruct<Y>();
+   std::shared_ptr<Y> x = boost::signals2::deconstruct<Y>();
   }
   {
-    boost::shared_ptr<Z> z = boost::signals2::deconstruct<Z>();
+   std::shared_ptr<Z> z = boost::signals2::deconstruct<Z>();
   }
   {
-    boost::shared_ptr<by_deconstruct_only> a = boost::signals2::deconstruct<by_deconstruct_only>(1);
-    BOOST_CHECK(a->value == 1);
+   std::shared_ptr<by_deconstruct_only> a = boost::signals2::deconstruct<by_deconstruct_only>(1);
+   BOOST_CHECK(a->value == 1);
   }
   {
-    boost::shared_ptr<mytest::A> a = boost::signals2::deconstruct<mytest::A>(1);
-    BOOST_CHECK(a->value == 1);
+   std::shared_ptr<mytest::A> a = boost::signals2::deconstruct<mytest::A>(1);
+   BOOST_CHECK(a->value == 1);
   }
   {// deconstruct const type
-    boost::shared_ptr<const mytest::A> a = boost::signals2::deconstruct<const mytest::A>(3);
-    BOOST_CHECK(a->value == 3);
+   std::shared_ptr<const mytest::A> a = boost::signals2::deconstruct<const mytest::A>(3);
+   BOOST_CHECK(a->value == 3);
   }
   {// passing arguments to postconstructor
-    boost::shared_ptr<mytest::A> a = boost::signals2::deconstruct<mytest::A>().postconstruct(2);
-    BOOST_CHECK(a->value == 2);
+   std::shared_ptr<mytest::A> a = boost::signals2::deconstruct<mytest::A>().postconstruct(2);
+   BOOST_CHECK(a->value == 2);
   }
   {// enable_shared_from_this with deconstruct
-      boost::shared_ptr<deconstructed_esft> a = boost::signals2::deconstruct<deconstructed_esft>();
+      std::shared_ptr<deconstructed_esft> a = boost::signals2::deconstruct<deconstructed_esft>();
+	  assert(a);
       BOOST_CHECK(!(a->shared_from_this() < a || a < a->shared_from_this()));
   }
 }

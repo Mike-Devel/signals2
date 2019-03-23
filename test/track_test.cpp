@@ -12,7 +12,6 @@
 #include <memory>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/test/minimal.hpp>
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -60,7 +59,7 @@ int test_main(int, char*[])
   // Test auto-disconnection
   BOOST_CHECK(s1(5) == 0);
   {
-    boost::shared_ptr<int> shorty(new int());
+    std::shared_ptr<int> shorty(new int());
     s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track(shorty));
     BOOST_CHECK(s1(5) == 5);
   }
@@ -68,7 +67,7 @@ int test_main(int, char*[])
 
   // Test auto-disconnection of slot before signal connection
   {
-    boost::shared_ptr<int> shorty(new int(1));
+    std::shared_ptr<int> shorty(new int(1));
 // doesn't work on gcc 3.3.5, it says: error: type specifier omitted for parameter `shorty'
 // does work on gcc 4.1.2
 //    sig_type::slot_type slot(swallow(), shorty.get(), _1);
@@ -83,7 +82,7 @@ int test_main(int, char*[])
 
   // Test binding of a slot to another slot
   {
-    boost::shared_ptr<int> shorty(new int(2));
+    std::shared_ptr<int> shorty(new int(2));
     boost::signals2::slot<int (double)> other_slot(&myfunc, boost::cref(*shorty.get()), _1);
     other_slot.track(shorty);
     connection = s1.connect(sig_type::slot_type(other_slot, 0.5).track(other_slot));
@@ -104,7 +103,7 @@ int test_main(int, char*[])
   // Test tracking of null but not empty shared_ptr
   BOOST_CHECK(s1(2) == 0);
   {
-    boost::shared_ptr<int> shorty((int*)(0));
+    std::shared_ptr<int> shorty((int*)(0));
     s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track(shorty));
     BOOST_CHECK(s1(2) == 2);
   }

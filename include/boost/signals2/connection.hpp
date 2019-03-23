@@ -17,12 +17,12 @@
 #include <boost/function.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/null_output_iterator.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/signals2/slot.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
+
 
 namespace boost
 {
@@ -31,7 +31,7 @@ namespace boost
     inline void null_deleter(const void*) {}
     namespace detail
     {
-      // This lock maintains a list of shared_ptr<void>
+      // This lock maintains a list of std::shared_ptr<void>
       // which will be destroyed only after the lock
       // has released its mutex.  Used to garbage
       // collect disconnected slots
@@ -42,7 +42,7 @@ namespace boost
         garbage_collecting_lock(Mutex &m):
           lock(m)
         {}
-        void add_trash(const shared_ptr<void> &piece_of_trash)
+        void add_trash(const std::shared_ptr<void> &piece_of_trash)
         {
           garbage.push_back(piece_of_trash);
         }
@@ -50,7 +50,7 @@ namespace boost
         // garbage must be declared before lock
         // to insure it is destroyed after lock is
         // destroyed.
-        auto_buffer<shared_ptr<void>, store_n_objects<10> > garbage;
+        auto_buffer<std::shared_ptr<void>, store_n_objects<10> > garbage;
         unique_lock<Mutex> lock;
       };
 
@@ -77,11 +77,11 @@ namespace boost
           }
         }
         virtual bool connected() const = 0;
-        shared_ptr<void> get_blocker()
+        std::shared_ptr<void> get_blocker()
         {
           unique_lock<connection_body_base> local_lock(*this);
-          shared_ptr<void> blocker = _weak_blocker.lock();
-          if(blocker == shared_ptr<void>())
+          std::shared_ptr<void> blocker = _weak_blocker.lock();
+          if(blocker == std::shared_ptr<void>())
           {
             blocker.reset(this, &null_deleter);
             _weak_blocker = blocker;
@@ -115,7 +115,7 @@ namespace boost
         }
         // if slot refcount decrements to zero due to this call,
         // it puts a
-        // shared_ptr to the slot in the garbage collecting lock,
+        // std::shared_ptr to the slot in the garbage collecting lock,
         // which will destroy the slot only after it unlocks.
         template<typename Mutex>
         void dec_slot_refcount(garbage_collecting_lock<Mutex> &lock_arg) const
@@ -128,9 +128,9 @@ namespace boost
         }
 
       protected:
-        virtual shared_ptr<void> release_slot() const = 0;
+        virtual std::shared_ptr<void> release_slot() const = 0;
 
-        weak_ptr<void> _weak_blocker;
+        std::weak_ptr<void> _weak_blocker;
       private:
         mutable bool _connected;
         mutable unsigned m_slot_refcount;
@@ -141,7 +141,7 @@ namespace boost
       {
       public:
         typedef Mutex mutex_type;
-        connection_body(const SlotType &slot_in, const boost::shared_ptr<mutex_type> &signal_mutex):
+        connection_body(const SlotType &slot_in, const std::shared_ptr<mutex_type> &signal_mutex):
           m_slot(new SlotType(slot_in)), _mutex(signal_mutex)
         {
         }
@@ -208,16 +208,16 @@ namespace boost
           return *m_slot;
         }
       protected:
-        virtual shared_ptr<void> release_slot() const
+        virtual std::shared_ptr<void> release_slot() const
         {
 
-          shared_ptr<void> released_slot = m_slot;
+          std::shared_ptr<void> released_slot = m_slot;
           m_slot.reset();
           return released_slot;
         }
       private:
-        mutable boost::shared_ptr<SlotType> m_slot;
-        const boost::shared_ptr<mutex_type> _mutex;
+        mutable std::shared_ptr<SlotType> m_slot;
+        const std::shared_ptr<mutex_type> _mutex;
         GroupKey _group_key;
       };
     }
@@ -232,7 +232,7 @@ namespace boost
       connection() {}
       connection(const connection &other): _weak_connection_body(other._weak_connection_body)
       {}
-      connection(const boost::weak_ptr<detail::connection_body_base> &connectionBody):
+      connection(const std::weak_ptr<detail::connection_body_base> &connectionBody):
         _weak_connection_body(connectionBody)
       {}
 
@@ -262,26 +262,26 @@ namespace boost
       ~connection() {}
       void disconnect() const
       {
-        boost::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
         if(connectionBody == 0) return;
         connectionBody->disconnect();
       }
       bool connected() const
       {
-        boost::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
         if(connectionBody == 0) return false;
         return connectionBody->connected();
       }
       bool blocked() const
       {
-        boost::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
         if(connectionBody == 0) return true;
         return connectionBody->blocked();
       }
       bool operator==(const connection& other) const
       {
-        boost::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
-        boost::shared_ptr<detail::connection_body_base> otherConnectionBody(other._weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> otherConnectionBody(other._weak_connection_body.lock());
         return connectionBody == otherConnectionBody;
       }
       bool operator!=(const connection& other) const
@@ -290,8 +290,8 @@ namespace boost
       }
       bool operator<(const connection& other) const
       {
-        boost::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
-        boost::shared_ptr<detail::connection_body_base> otherConnectionBody(other._weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
+        std::shared_ptr<detail::connection_body_base> otherConnectionBody(other._weak_connection_body.lock());
         return connectionBody < otherConnectionBody;
       }
       void swap(connection &other)
@@ -301,7 +301,7 @@ namespace boost
       }
     protected:
 
-      boost::weak_ptr<detail::connection_body_base> _weak_connection_body;
+      std::weak_ptr<detail::connection_body_base> _weak_connection_body;
     };
     inline void swap(connection &conn1, connection &conn2)
     {

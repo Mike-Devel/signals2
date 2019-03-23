@@ -14,7 +14,7 @@
 #include <boost/signals2/trackable.hpp>
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
-#include <boost/weak_ptr.hpp>
+
 
 struct short_lived : public boost::signals2::trackable {
   ~short_lived() {}
@@ -104,8 +104,8 @@ int test_main(int, char*[])
 
     BOOST_CHECK(s1(5) == 0);
   }
-  
+
   test_immediate_disconnect_on_delete();
-  
+
   return 0;
 }

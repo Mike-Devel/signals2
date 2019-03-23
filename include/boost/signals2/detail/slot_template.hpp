@@ -74,7 +74,7 @@ namespace boost
         return _slot_function(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
       }
       // tracking
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track(const weak_ptr<void> &tracked)      {
+      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track(const std::weak_ptr<void> &tracked)      {
         _tracked_objects.push_back(tracked);
         return *this;
       }

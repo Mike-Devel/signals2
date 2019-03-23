@@ -91,7 +91,7 @@ namespace boost
         {}
 
         ExtendedSlotFunction _fun;
-        boost::shared_ptr<connection> _connection;
+        std::shared_ptr<connection> _connection;
       };
 
       template<BOOST_SIGNALS2_SIGNAL_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS)>
@@ -118,7 +118,7 @@ namespace boost
 #endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES
         typedef slot_call_iterator_cache<nonvoid_slot_result_type, slot_invoker> slot_call_iterator_cache_type;
         typedef typename group_key<Group>::type group_key_type;
-        typedef shared_ptr<connection_body<group_key_type, slot_type, Mutex> > connection_body_type;
+        typedef std::shared_ptr<connection_body<group_key_type, slot_type, Mutex> > connection_body_type;
         typedef grouped_list<Group, GroupCompare, connection_body_type> connection_list_type;
         typedef BOOST_SIGNALS2_BOUND_EXTENDED_SLOT_FUNCTION_N(BOOST_SIGNALS2_NUM_ARGS)<extended_slot_function_type>
           bound_extended_slot_function_type;
@@ -171,7 +171,7 @@ namespace boost
         // disconnect slot(s)
         void disconnect_all_slots()
         {
-          shared_ptr<invocation_state> local_state =
+          std::shared_ptr<invocation_state> local_state =
             get_readable_state();
           typename connection_list_type::iterator it;
           for(it = local_state->connection_bodies().begin();
@@ -182,7 +182,7 @@ namespace boost
         }
         void disconnect(const group_type &group)
         {
-          shared_ptr<invocation_state> local_state =
+          std::shared_ptr<invocation_state> local_state =
             get_readable_state();
           group_key_type group_key(grouped_slots, group);
           typename connection_list_type::iterator it;
@@ -203,7 +203,7 @@ namespace boost
         // emit signal
         result_type operator ()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS))
         {
-          shared_ptr<invocation_state> local_state;
+          std::shared_ptr<invocation_state> local_state;
           typename connection_list_type::iterator it;
           {
             garbage_collecting_lock<mutex_type> list_lock(*_mutex);
@@ -227,7 +227,7 @@ namespace boost
         }
         result_type operator ()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS)) const
         {
-          shared_ptr<invocation_state> local_state;
+          std::shared_ptr<invocation_state> local_state;
           typename connection_list_type::iterator it;
           {
             garbage_collecting_lock<mutex_type> list_lock(*_mutex);
@@ -251,7 +251,7 @@ namespace boost
         }
         std::size_t num_slots() const
         {
-          shared_ptr<invocation_state> local_state =
+          std::shared_ptr<invocation_state> local_state =
             get_readable_state();
           typename connection_list_type::iterator it;
           std::size_t count = 0;
@@ -264,7 +264,7 @@ namespace boost
         }
         bool empty() const
         {
-          shared_ptr<invocation_state> local_state =
+          std::shared_ptr<invocation_state> local_state =
             get_readable_state();
           typename connection_list_type::iterator it;
           for(it = local_state->connection_bodies().begin();
@@ -290,7 +290,7 @@ namespace boost
       private:
         typedef Mutex mutex_type;
 
-        // a struct used to optimize (minimize) the number of shared_ptrs that need to be created
+        // a struct used to optimize (minimize) the number of std::shared_ptrs that need to be created
         // inside operator()
         class invocation_state
         {
@@ -314,8 +314,8 @@ namespace boost
         private:
           invocation_state(const invocation_state &);
 
-          shared_ptr<connection_list_type> _connection_bodies;
-          shared_ptr<combiner_type> _combiner;
+          std::shared_ptr<connection_list_type> _connection_bodies;
+          std::shared_ptr<combiner_type> _combiner;
         };
         // Destructor of invocation_janitor does some cleanup when a signal invocation completes.
         // Code can't be put directly in signal's operator() due to complications from void return types.
@@ -417,7 +417,7 @@ namespace boost
           }
           nolock_cleanup_connections_from(list_lock, false, _shared_state->connection_bodies().begin());
         }
-        shared_ptr<invocation_state> get_readable_state() const
+        std::shared_ptr<invocation_state> get_readable_state() const
         {
           unique_lock<mutex_type> list_lock(*_mutex);
           return _shared_state;
@@ -435,7 +435,7 @@ namespace boost
         template<typename T>
         void do_disconnect(const T &slot, mpl::bool_<false> /* is_group */)
         {
-          shared_ptr<invocation_state> local_state =
+          std::shared_ptr<invocation_state> local_state =
             get_readable_state();
           typename connection_list_type::iterator it;
           for(it = local_state->connection_bodies().begin();
@@ -497,11 +497,11 @@ namespace boost
         }
 
         // _shared_state is mutable so we can do force_cleanup_connections during a const invocation
-        mutable shared_ptr<invocation_state> _shared_state;
+        mutable std::shared_ptr<invocation_state> _shared_state;
         mutable typename connection_list_type::iterator _garbage_collector_it;
         // connection list mutex must never be locked when attempting a blocking lock on a slot,
         // or you could deadlock.
-        const boost::shared_ptr<mutex_type> _mutex;
+        const std::shared_ptr<mutex_type> _mutex;
       };
 
       template<BOOST_SIGNALS2_SIGNAL_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS)>
@@ -635,12 +635,12 @@ namespace boost
         swap(_pimpl, other._pimpl);
       }
     protected:
-      virtual shared_ptr<void> lock_pimpl() const
+      virtual std::shared_ptr<void> lock_pimpl() const
       {
         return _pimpl;
       }
     private:
-      shared_ptr<impl_class>
+      std::shared_ptr<impl_class>
         _pimpl;
     };
 
@@ -667,20 +667,20 @@ namespace boost
         {}
         result_type operator ()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS))
         {
-          shared_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
+          std::shared_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
             <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> >
             shared_pimpl(_weak_pimpl.lock());
           return (*shared_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
         }
         result_type operator ()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS)) const
         {
-          shared_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
+          std::shared_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
             <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> >
             shared_pimpl(_weak_pimpl.lock());
           return (*shared_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
         }
       private:
-        boost::weak_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
+        std::weak_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
           <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> > _weak_pimpl;
       };
 

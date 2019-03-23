@@ -12,7 +12,7 @@
 #ifndef BOOST_SIGNALS2_SLOT_BASE_HPP
 #define BOOST_SIGNALS2_SLOT_BASE_HPP
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/weak_ptr.hpp>
 #include <boost/signals2/detail/foreign_ptr.hpp>
 #include <boost/signals2/expired_slot.hpp>
@@ -31,8 +31,8 @@ namespace boost
       class tracked_objects_visitor;
       class trackable_pointee;
 
-      typedef boost::variant<boost::weak_ptr<trackable_pointee>, boost::weak_ptr<void>, detail::foreign_void_weak_ptr > void_weak_ptr_variant;
-      typedef boost::variant<boost::shared_ptr<void>, detail::foreign_void_shared_ptr > void_shared_ptr_variant;
+      typedef boost::variant<std::weak_ptr<trackable_pointee>, std::weak_ptr<void>, detail::foreign_void_weak_ptr > void_weak_ptr_variant;
+      typedef boost::variant<std::shared_ptr<void>, detail::foreign_void_shared_ptr > void_shared_ptr_variant;
       class lock_weak_ptr_visitor
       {
       public:
@@ -42,11 +42,11 @@ namespace boost
         {
           return wp.lock();
         }
-        // overload to prevent incrementing use count of shared_ptr associated
+        // overload to prevent incrementing use count of std::shared_ptr associated
         // with signals2::trackable objects
         result_type operator()(const weak_ptr<trackable_pointee> &) const
         {
-          return boost::shared_ptr<void>();
+          return std::shared_ptr<void>();
         }
       };
       class expired_weak_ptr_visitor
