@@ -32,7 +32,6 @@ endforeach()
 file( GLOB header_files ../include/boost/signals2/*.hpp )
 
 # some headerfiles don't work on their own by design
-list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/predestructible.hpp)
 list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/variadic_signal.hpp)
 list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/variadic_slot.hpp)
 
@@ -57,3 +56,30 @@ foreach( file IN LISTS header_files )
 
 endforeach()
 
+# checking that headerfiles compiles on its own (has all necessary includes)
+file( GLOB header_files ../include/boost/signals2/detail/*.hpp )
+
+# some headerfiles don't work on their own by design
+list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/detail/signal_template.hpp)
+list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/detail/slot_template.hpp)
+
+foreach( file IN LISTS header_files )
+
+	get_filename_component( header_name ${file} NAME )
+
+	set( executable_name test_boost_signals2_compile_detail_${header_name} )
+	set( test_file_name ${CMAKE_CURRENT_BINARY_DIR}/detail/test_boost_signals2_compile_${header_name}.cpp )
+	file(GENERATE OUTPUT ${test_file_name}
+		CONTENT
+		"#include <boost/signals2/detail/${header_name}>
+		int main(){}
+		"
+	)
+
+	add_executable( ${executable_name} ${test_file_name} )
+	target_link_libraries( ${executable_name}
+		PUBLIC
+			Boost::signals2
+	)
+
+endforeach()
