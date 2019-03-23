@@ -24,10 +24,6 @@
 #include <boost/visit_each.hpp>
 #include <boost/weak_ptr.hpp>
 
-#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-#include <boost/signals2/preprocessed_slot.hpp>
-#else
 #include <boost/signals2/variadic_slot.hpp>
-#endif
 
 #endif // BOOST_SIGNALS2_SLOT_HPP

@@ -32,11 +32,7 @@
 #include <boost/signals2/slot.hpp>
 #include <functional>
 
-#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-#include <boost/signals2/preprocessed_signal.hpp>
-#else
 #include <boost/signals2/variadic_signal.hpp>
-#endif
 
 namespace boost
 {
