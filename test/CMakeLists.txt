@@ -8,6 +8,7 @@
 file( GLOB test_src_files *.cpp )
 
 list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/invocation_benchmark.cpp)
+# list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/signals_vs_signals2_benchmark.cpp)
 
 find_package(Threads REQUIRED)
 
