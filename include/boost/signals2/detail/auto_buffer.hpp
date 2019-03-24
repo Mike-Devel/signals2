@@ -151,11 +151,12 @@ namespace detail
         typedef const_pointer                            const_iterator;
         typedef boost::reverse_iterator<iterator>        reverse_iterator;
         typedef boost::reverse_iterator<const_iterator>  const_reverse_iterator;
-        typedef typename boost::mpl::if_c< boost::has_trivial_assign<T>::value
+        typedef std::conditional_t< std::is_trivially_assignable<T,T>::value
                                            && sizeof(T) <= sizeof(long double),
                                           const value_type,
-                                          const_reference >::type
+                                          const_reference >
                                                       optimized_const_reference;
+
     private:
 
         pointer allocate( size_type capacity_arg )
