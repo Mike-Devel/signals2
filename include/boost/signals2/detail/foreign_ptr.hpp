@@ -12,11 +12,8 @@
 #define BOOST_SIGNALS2_FOREIGN_PTR_HPP
 
 #include <algorithm>
-#include <boost/config.hpp>
-#include <boost/assert.hpp>
-#include <boost/utility/swap.hpp>
-
 #include <memory>
+#include <utility>
 
 namespace boost
 {
@@ -84,7 +81,8 @@ namespace boost
         }
         void swap(foreign_void_shared_ptr &other)
         {
-          boost::swap(_p, other._p);
+            using std::swap;
+            swap(_p, other._p);
         }
       private:
         foreign_shared_ptr_impl_base *_p;
@@ -132,7 +130,7 @@ namespace boost
         explicit foreign_void_weak_ptr(const FWP &fwp):
           _p(new foreign_weak_ptr_impl<FWP>(fwp))
         {}
-		// TODO implement move
+        // TODO implement move
         foreign_void_weak_ptr & operator=(const foreign_void_weak_ptr &other)
         {
           if(&other == this) return *this;
@@ -141,7 +139,8 @@ namespace boost
         }
         void swap(foreign_void_weak_ptr &other)
         {
-          boost::swap(_p, other._p);
+            using std::swap;
+            swap(_p, other._p);
         }
         foreign_void_shared_ptr lock() const
         {

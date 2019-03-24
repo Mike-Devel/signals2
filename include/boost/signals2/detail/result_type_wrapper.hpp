@@ -11,8 +11,6 @@
 #ifndef BOOST_SIGNALS2_RESULT_TYPE_WRAPPER_HPP
 #define BOOST_SIGNALS2_RESULT_TYPE_WRAPPER_HPP
 
-#include <boost/config.hpp>
-
 namespace boost {
   namespace signals2 {
     namespace detail {
