@@ -11,9 +11,6 @@
 
 // This file is included iteratively, and should not be protected from multiple inclusion
 
-#define BOOST_SIGNALS2_NUM_ARGS 1
-
-
 namespace boost
 {
   namespace signals2
@@ -132,4 +129,3 @@ namespace boost
   } // end namespace signals2
 } // end namespace boost
 
-#undef BOOST_SIGNALS2_NUM_ARGS

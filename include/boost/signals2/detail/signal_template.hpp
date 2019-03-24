@@ -13,8 +13,6 @@
 
 // This file is included iteratively, and should not be protected from multiple inclusion
 
-#define BOOST_SIGNALS2_NUM_ARGS 1
-
 // R, T1, T2, ..., TN, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION \
   R (Args...), Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex
@@ -59,9 +57,7 @@ namespace boost
           *_connection = conn;
         }
 
-#if BOOST_SIGNALS2_NUM_ARGS > 0
         template<typename ... Args>
-#endif // BOOST_SIGNALS2_NUM_ARGS > 0
           result_type operator()(Args && ... args)
         {
           return bound_extended_slot_function_invoker
@@ -70,9 +66,7 @@ namespace boost
               std::forward<Args>(args)...);
         }
         // const overload
-#if BOOST_SIGNALS2_NUM_ARGS > 0
         template<typename ... Args>
-#endif // BOOST_SIGNALS2_NUM_ARGS > 0
           result_type operator()(Args && ... args) const
         {
           return bound_extended_slot_function_invoker
@@ -687,5 +681,4 @@ namespace boost
   } // namespace signals2
 } // namespace boost
 
-#undef BOOST_SIGNALS2_NUM_ARGS
 #undef BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION

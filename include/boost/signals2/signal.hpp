@@ -17,7 +17,6 @@
 #include <boost/signals2/detail/replace_slot_function.hpp>
 #include <boost/signals2/detail/result_type_wrapper.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
-#include <boost/signals2/detail/signals_common_macros.hpp>
 #include <boost/signals2/detail/slot_groups.hpp>
 #include <boost/signals2/detail/slot_call_iterator.hpp>
 #include <boost/signals2/optional_last_value.hpp>

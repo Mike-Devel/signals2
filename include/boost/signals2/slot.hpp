@@ -18,7 +18,6 @@
 #include <boost/mpl/identity.hpp>
 #include <boost/ref.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
-#include <boost/signals2/detail/signals_common_macros.hpp>
 #include <boost/signals2/detail/tracked_objects_visitor.hpp>
 #include <boost/signals2/slot_base.hpp>
 #include <boost/visit_each.hpp>
