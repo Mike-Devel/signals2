@@ -45,7 +45,7 @@ struct max_or_default {
   }
 };
 
-static int myfunc(int i, double z)
+static int myfunc(int i, double )
 {
   return i;
 }

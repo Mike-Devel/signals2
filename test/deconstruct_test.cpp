@@ -75,13 +75,13 @@ namespace mytest
   {
   public:
     template<typename T> friend
-      void adl_postconstruct(const std::shared_ptr<T> &sp, A *p)
+      void adl_postconstruct(const std::shared_ptr<T> &, A *p)
     {
       BOOST_CHECK(!p->_postconstructed);
       p->_postconstructed = true;
     }
     template<typename T> friend
-      void adl_postconstruct(const std::shared_ptr<T> &sp, A *p, int val)
+      void adl_postconstruct(const std::shared_ptr<T> &, A *p, int val)
     {
       p->value = val;
       BOOST_CHECK(!p->_postconstructed);
