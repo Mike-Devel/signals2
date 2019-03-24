@@ -26,18 +26,20 @@ namespace boost
 #endif
 
 
-    template<BOOST_SIGNALS2_SLOT_TEMPLATE_SPECIALIZATION_DECL(BOOST_SIGNALS2_NUM_ARGS)>
-      class BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) BOOST_SIGNALS2_SLOT_TEMPLATE_SPECIALIZATION
-      : public slot_base, public detail::BOOST_SIGNALS2_STD_FUNCTIONAL_BASE
+    template< typename SlotFunction, 
+              typename R, 
+              typename ... Args>
+      class slot  <R (Args...), SlotFunction>
+      : public slot_base, public detail::std_functional_base<Args...>
 
     {
     public:
-      template<BOOST_SIGNALS2_PREFIXED_SIGNATURE_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS, Other), typename OtherSlotFunction>
-      friend class BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS);
+      template<typename prefixSignature, typename OtherSlotFunction>
+      friend class slot;
 
       typedef SlotFunction slot_function_type;
       typedef R result_type;
-      typedef typename mpl::identity<BOOST_SIGNALS2_SIGNATURE_FUNCTION_TYPE(BOOST_SIGNALS2_NUM_ARGS)>::type signature_type;
+      typedef typename mpl::identity<R (Args...)>::type signature_type;
 
       template<unsigned n> class arg
       {
@@ -49,41 +51,41 @@ namespace boost
 
 
       template<typename F>
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const F& f)
+      slot(const F& f)
       {
         init_slot_function(f);
       }
       // copy constructors
 
       template<typename Signature, typename OtherSlotFunction>
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const slot<Signature, OtherSlotFunction> &other_slot):
+      slot(const slot<Signature, OtherSlotFunction> &other_slot):
         slot_base(other_slot), _slot_function(other_slot._slot_function)
       {
       }
       // bind syntactic sugar
       BOOST_SIGNALS2_SLOT_N_BINDING_CONSTRUCTORS
       // invocation
-      R operator()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS))
+      R operator()(Args ... args)
       {
         locked_container_type locked_objects = lock();
-        return _slot_function(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
+        return _slot_function(args...);
       }
-      R operator()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS)) const
+      R operator()(Args ... args) const
       {
         locked_container_type locked_objects = lock();
-        return _slot_function(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
+        return _slot_function(args...);
       }
       // tracking
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track(const std::weak_ptr<void> &tracked)      {
+      slot& track(const std::weak_ptr<void> &tracked)      {
         _tracked_objects.push_back(tracked);
         return *this;
       }
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track(const signal_base &signal)
+      slot& track(const signal_base &signal)
       {
         track_signal(signal);
         return *this;
       }
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track(const slot_base &slot)
+      slot& track(const slot_base &slot)
       {
         tracked_container_type::const_iterator it;
         for(it = slot.tracked_objects().begin(); it != slot.tracked_objects().end(); ++it)
@@ -93,14 +95,14 @@ namespace boost
         return *this;
       }
       template<typename ForeignWeakPtr>
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track_foreign(const ForeignWeakPtr &tracked,
+      slot& track_foreign(const ForeignWeakPtr &tracked,
         typename weak_ptr_traits<ForeignWeakPtr>::shared_type * /*SFINAE*/ = 0)
       {
         _tracked_objects.push_back(detail::foreign_void_weak_ptr(tracked));
         return *this;
       }
       template<typename ForeignSharedPtr>
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)& track_foreign(const ForeignSharedPtr &tracked,
+      slot& track_foreign(const ForeignSharedPtr &tracked,
         typename shared_ptr_traits<ForeignSharedPtr>::weak_type * /*SFINAE*/ = 0)
       {
         _tracked_objects.push_back
