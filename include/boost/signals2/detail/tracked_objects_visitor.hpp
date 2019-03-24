@@ -58,6 +58,9 @@ namespace boost
                     }
                 }
             }
+            else {
+                (void) t;
+            }
         }
 
         void add_if_trackable(const trackable* trackable) const
