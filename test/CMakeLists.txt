@@ -5,6 +5,13 @@
 # NOTE: CMake support for Boost.Signals2 is currently experimental at best
 #       and the interface is likely to change in the future
 
+if(MSVC)
+	STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	add_definitions( /D_SILENCE_CXX17_SHARED_PTR_UNIQUE_DEPRECATION_WARNING )
+else()
+	add_compile_options( -Wall )
+endif()
+
 file( GLOB test_src_files *.cpp )
 
 list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/invocation_benchmark.cpp)
