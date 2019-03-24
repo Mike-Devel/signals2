@@ -35,7 +35,8 @@ namespace boost
         {
           // Make _blocker non-empty so the blocking() method still returns the correct value
           // after the connection has expired.
-          _blocker.reset(static_cast<int*>(0));
+          const static std::shared_ptr<void> default_blocker(new int{ 0 });
+          _blocker = default_blocker;
           return;
         }
         _blocker = connection_body->get_blocker();
@@ -46,8 +47,7 @@ namespace boost
       }
       bool blocking() const
       {
-        std::shared_ptr<void> empty;
-        return _blocker < empty || empty < _blocker;
+        return _blocker != nullptr ;
       }
       signals2::connection connection() const
       {

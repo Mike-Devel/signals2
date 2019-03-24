@@ -13,7 +13,6 @@
 #define BOOST_SIGNALS2_SLOT_BASE_HPP
 
 #include <memory>
-#include <boost/weak_ptr.hpp>
 #include <boost/signals2/detail/foreign_ptr.hpp>
 #include <boost/signals2/expired_slot.hpp>
 #include <boost/signals2/signal_base.hpp>
@@ -44,7 +43,7 @@ namespace boost
         }
         // overload to prevent incrementing use count of std::shared_ptr associated
         // with signals2::trackable objects
-        result_type operator()(const weak_ptr<trackable_pointee> &) const
+        result_type operator()(const std::weak_ptr<trackable_pointee> &) const
         {
           return std::shared_ptr<void>();
         }
