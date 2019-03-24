@@ -81,7 +81,7 @@ void benchmark_new_tracked_invocation(unsigned num_connections)
 
   new_signal_type signal;
   std::cout << "boost::signals2::signal, " << num_connections << " connections, tracking enabled, invoking " << num_invocations << " times: ";
-  std::<memory><int> trackable_ptr(new int(0));
+  std::shared_ptr<int> trackable_ptr(new int(0));
   unsigned n;
   for(n = 0; n < num_connections; ++n)
   {
