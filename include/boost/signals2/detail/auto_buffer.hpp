@@ -6,29 +6,20 @@
 #ifndef BOOST_SIGNALS2_DETAIL_AUTO_BUFFER_HPP_25_02_2009
 #define BOOST_SIGNALS2_DETAIL_AUTO_BUFFER_HPP_25_02_2009
 
-#include <boost/detail/workaround.hpp>
-
 #if defined(_MSC_VER)
 # pragma once
 #endif
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
-#pragma warning(push)
-#pragma warning(disable:4996)
-#endif
-
-#include <boost/assert.hpp>
-#include <boost/iterator/reverse_iterator.hpp>
-#include <boost/iterator/iterator_traits.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/multi_index/detail/scope_guard.hpp>
-#include <boost/swap.hpp>
+
 #include <algorithm>
 #include <cstring>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
+#include <cassert>
+#include <memory>
 
 namespace boost
 {
@@ -42,13 +33,13 @@ namespace detail
     template< unsigned N >
     struct store_n_objects
     {
-        BOOST_STATIC_CONSTANT( unsigned, value = N );
+        static constexpr unsigned value = N;
     };
 
     template< unsigned N >
     struct store_n_bytes
     {
-        BOOST_STATIC_CONSTANT( unsigned, value = N );
+        static constexpr unsigned value = N;
     };
 
     namespace auto_buffer_detail
@@ -56,25 +47,25 @@ namespace detail
         template< class Policy, class T >
         struct compute_buffer_size
         {
-            BOOST_STATIC_CONSTANT( unsigned, value = Policy::value * sizeof(T) );
+            static constexpr unsigned value = Policy::value * sizeof(T);
         };
 
         template< unsigned N, class T >
         struct compute_buffer_size< store_n_bytes<N>, T >
         {
-            BOOST_STATIC_CONSTANT( unsigned, value = N );
+            static constexpr unsigned value = N;
         };
 
         template< class Policy, class T >
         struct compute_buffer_objects
         {
-            BOOST_STATIC_CONSTANT( unsigned, value = Policy::value );
+            static constexpr unsigned value = Policy::value;
         };
 
         template< unsigned N, class T >
         struct compute_buffer_objects< store_n_bytes<N>, T >
         {
-            BOOST_STATIC_CONSTANT( unsigned, value = N / sizeof(T) );
+            static constexpr unsigned value = N / sizeof(T);
         };
     }
 
@@ -125,7 +116,7 @@ namespace detail
         enum { N = auto_buffer_detail::
                    compute_buffer_objects<StackBufferPolicy,T>::value };
 
-        BOOST_STATIC_CONSTANT( bool, is_stack_buffer_empty = N == 0u );
+        static constexpr bool is_stack_buffer_empty = N == 0u;
 
         typedef auto_buffer<T, store_n_objects<0>, GrowPolicy, Allocator>
                                                          local_buffer;
@@ -133,17 +124,17 @@ namespace detail
     public:
         typedef Allocator                                allocator_type;
         typedef T                                        value_type;
-        typedef typename Allocator::size_type            size_type;
-        typedef typename Allocator::difference_type      difference_type;
+        typedef typename std::allocator_traits<Allocator>::size_type            size_type;
+        typedef typename std::allocator_traits<Allocator>::difference_type      difference_type;
         typedef T*                                       pointer;
-        typedef typename Allocator::pointer              allocator_pointer;
+        typedef typename std::allocator_traits<Allocator>::pointer              allocator_pointer;
         typedef const T*                                 const_pointer;
         typedef T&                                       reference;
         typedef const T&                                 const_reference;
         typedef pointer                                  iterator;
         typedef const_pointer                            const_iterator;
-        typedef boost::reverse_iterator<iterator>        reverse_iterator;
-        typedef boost::reverse_iterator<const_iterator>  const_reverse_iterator;
+        typedef std::reverse_iterator<iterator>          reverse_iterator;
+        typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;
         typedef std::conditional_t< std::is_trivially_assignable<T,T>::value
                                            && sizeof(T) <= sizeof(long double),
                                           const value_type,
@@ -245,7 +236,7 @@ namespace detail
 
         void auto_buffer_destroy()
         {
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
             if( buffer_ ) // do we need this check? Yes, but only
                 // for N = 0u + local instances in one_sided_swap()
                 auto_buffer_destroy( std::is_trivially_destructible<T>() );
@@ -253,7 +244,7 @@ namespace detail
 
         void destroy_back_n( size_type n, const std::false_type& )
         {
-            BOOST_ASSERT( n > 0 );
+            assert( n > 0 );
             pointer buffer  = buffer_ + size_ - 1u;
             pointer new_end = buffer - n;
             for( ; buffer > new_end; --buffer )
@@ -307,12 +298,12 @@ namespace detail
             auto_buffer_destroy();
             buffer_   = new_buffer;
             members_.capacity_ = new_capacity;
-            BOOST_ASSERT( size_ <= members_.capacity_ );
+            assert( size_ <= members_.capacity_ );
         }
 
         size_type new_capacity_impl( size_type n )
         {
-            BOOST_ASSERT( n > members_.capacity_ );
+            assert( n > members_.capacity_ );
             size_type new_capacity = GrowPolicy::new_capacity( members_.capacity_ );
             // @todo: consider to check for allocator.max_size()
             return (std::max)(new_capacity,n);
@@ -321,52 +312,54 @@ namespace detail
         static void swap_helper( auto_buffer& l, auto_buffer& r,
                                  const std::true_type& )
         {
-            BOOST_ASSERT( l.is_on_stack() && r.is_on_stack() );
+            assert( l.is_on_stack() && r.is_on_stack() );
 
             auto_buffer temp( l.begin(), l.end() );
             assign_impl( r.begin(), r.end(), l.begin() );
             assign_impl( temp.begin(), temp.end(), r.begin() );
-            boost::swap( l.size_, r.size_ );
-            boost::swap( l.members_.capacity_, r.members_.capacity_ );
+            using std::swap;
+            swap( l.size_, r.size_ );
+            swap( l.members_.capacity_, r.members_.capacity_ );
         }
 
         static void swap_helper( auto_buffer& l, auto_buffer& r,
                                  const std::false_type& )
         {
-            BOOST_ASSERT( l.is_on_stack() && r.is_on_stack() );
+            assert( l.is_on_stack() && r.is_on_stack() );
             size_type min_size    = (std::min)(l.size_,r.size_);
             size_type max_size    = (std::max)(l.size_,r.size_);
             size_type diff        = max_size - min_size;
             auto_buffer* smallest = l.size_ == min_size ? &l : &r;
             auto_buffer* largest  = smallest == &l ? &r : &l;
 
+            using std::swap;
             // @remark: the implementation below is not as fast
             //          as it could be if we assumed T had a default
             //          constructor.
 
             size_type i = 0u;
             for(  ; i < min_size; ++i )
-                boost::swap( (*smallest)[i], (*largest)[i] );
+               swap( (*smallest)[i], (*largest)[i] );
 
             for( ; i < max_size; ++i )
                 smallest->unchecked_push_back( (*largest)[i] );
 
             largest->pop_back_n( diff );
-            boost::swap( l.members_.capacity_, r.members_.capacity_ );
+            swap( l.members_.capacity_, r.members_.capacity_ );
         }
 
         void one_sided_swap( auto_buffer& temp ) // nothrow
         {
-            BOOST_ASSERT( !temp.is_on_stack() );
+            assert( !temp.is_on_stack() );
             auto_buffer_destroy();
             // @remark: must be nothrow
             get_allocator()    = temp.get_allocator();
             members_.capacity_ = temp.members_.capacity_;
             buffer_            = temp.buffer_;
-            BOOST_ASSERT( temp.size_ >= size_ + 1u );
+            assert( temp.size_ >= size_ + 1u );
             size_              = temp.size_;
             temp.buffer_       = 0;
-            BOOST_ASSERT( temp.is_valid() );
+            assert( temp.is_valid() );
         }
 
         template< class I >
@@ -382,7 +375,7 @@ namespace detail
 
         void grow_back( size_type n, const std::true_type& )
         {
-            BOOST_ASSERT( size_ + n <= members_.capacity_ );
+            assert( size_ + n <= members_.capacity_ );
             size_ += n;
         }
 
@@ -398,7 +391,7 @@ namespace detail
 
         void grow_back_one( const std::true_type& )
         {
-            BOOST_ASSERT( size_ + 1 <= members_.capacity_ );
+            assert( size_ + 1 <= members_.capacity_ );
             size_ += 1;
         }
 
@@ -432,7 +425,7 @@ namespace detail
                 {
                     unchecked_push_back( begin_arg, end_arg );
                 }
-                BOOST_ASSERT( is_valid() );
+                assert( is_valid() );
                 return;
             }
 
@@ -441,7 +434,7 @@ namespace detail
             temp.unchecked_push_back( begin_arg, end_arg );
             temp.unchecked_push_back( before, cend() );
             one_sided_swap( temp );
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
     public:
@@ -474,7 +467,7 @@ namespace detail
               buffer_( static_cast<T*>(members_.address()) ),
               size_( 0u )
         {
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         auto_buffer( const auto_buffer& r )
@@ -484,7 +477,7 @@ namespace detail
         {
             copy_impl( r.begin(), r.end(), buffer_ );
             size_ = r.size_;
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         auto_buffer& operator=( const auto_buffer& r ) // basic
@@ -525,8 +518,8 @@ namespace detail
                 }
             }
 
-            BOOST_ASSERT( size() == r.size() );
-            BOOST_ASSERT( is_valid() );
+            assert( size() == r.size() );
+            assert( is_valid() );
             return *this;
         }
 
@@ -535,7 +528,7 @@ namespace detail
               buffer_( allocate(members_.capacity_) ),
               size_( 0 )
         {
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         auto_buffer( size_type size_arg, optimized_const_reference init_value )
@@ -545,7 +538,7 @@ namespace detail
         {
             std::uninitialized_fill( buffer_, buffer_ + size_arg, init_value );
             size_ = size_arg;
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         auto_buffer( size_type capacity_arg, const allocator_type& a )
@@ -554,7 +547,7 @@ namespace detail
               buffer_( allocate(members_.capacity_) ),
               size_( 0 )
         {
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         auto_buffer( size_type size_arg, optimized_const_reference init_value,
@@ -566,7 +559,7 @@ namespace detail
         {
             std::uninitialized_fill( buffer_, buffer_ + size_arg, init_value );
             size_ = size_arg;
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         template< class ForwardIterator >
@@ -580,7 +573,7 @@ namespace detail
             size_ = members_.capacity_;
             if( members_.capacity_ < N )
                 members_.capacity_ = N;
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         template< class ForwardIterator >
@@ -595,7 +588,7 @@ namespace detail
             size_ = members_.capacity_;
             if( members_.capacity_ < N )
                 members_.capacity_ = N;
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         ~auto_buffer()
@@ -734,32 +727,32 @@ namespace detail
 
         reference operator[]( size_type n )
         {
-            BOOST_ASSERT( n < size_ );
+            assert( n < size_ );
             return buffer_[n];
         }
 
         optimized_const_reference operator[]( size_type n ) const
         {
-            BOOST_ASSERT( n < size_ );
+            assert( n < size_ );
             return buffer_[n];
         }
 
         void unchecked_push_back()
         {
-            BOOST_ASSERT( !full() );
+            assert( !full() );
             new (buffer_ + size_) T;
             ++size_;
         }
 
         void unchecked_push_back_n( size_type n )
         {
-            BOOST_ASSERT( size_ + n <= members_.capacity_ );
+            assert( size_ + n <= members_.capacity_ );
             unchecked_push_back_n( n, std::is_trivially_assignable<T,T>() );
         }
 
         void unchecked_push_back( optimized_const_reference x ) // non-growing
         {
-            BOOST_ASSERT( !full() );
+            assert( !full() );
             new (buffer_ + size_) T( x );
             ++size_;
         }
@@ -768,30 +761,30 @@ namespace detail
         void unchecked_push_back( ForwardIterator begin_arg,
                                   ForwardIterator end_arg ) // non-growing
         {
-            BOOST_ASSERT( size_ + std::distance(begin_arg, end_arg) <= members_.capacity_ );
+            assert( size_ + std::distance(begin_arg, end_arg) <= members_.capacity_ );
             copy_impl( begin_arg, end_arg, buffer_ + size_ );
             size_ += std::distance(begin_arg, end_arg);
         }
 
         void reserve_precisely( size_type n )
         {
-            BOOST_ASSERT( members_.capacity_  >= N );
+            assert( members_.capacity_  >= N );
 
             if( n <= members_.capacity_ )
                 return;
             reserve_impl( n );
-            BOOST_ASSERT( members_.capacity_ == n );
+            assert( members_.capacity_ == n );
         }
 
         void reserve( size_type n ) // strong
         {
-            BOOST_ASSERT( members_.capacity_  >= N );
+            assert( members_.capacity_  >= N );
 
             if( n <= members_.capacity_ )
                 return;
 
             reserve_impl( new_capacity_impl( n ) );
-            BOOST_ASSERT( members_.capacity_ >= n );
+            assert( members_.capacity_ >= n );
         }
 
         void push_back()
@@ -842,7 +835,7 @@ namespace detail
                     grow_back_one();
                     std::copy( before, cend() - 1u, where + 1u );
                     *where = x;
-                    BOOST_ASSERT( is_valid() );
+                    assert( is_valid() );
                  }
                 else
                 {
@@ -857,7 +850,7 @@ namespace detail
             temp.unchecked_push_back( x );
             temp.unchecked_push_back( before, cend() );
             one_sided_swap( temp );
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
             return result;
         }
 
@@ -871,7 +864,7 @@ namespace detail
                 iterator where = const_cast<T*>(before);
                 std::copy( before, cend() - n, where + n );
                 std::fill( where, where + n, x );
-                BOOST_ASSERT( is_valid() );
+                assert( is_valid() );
                 return;
             }
 
@@ -881,7 +874,7 @@ namespace detail
             temp.size_ += n;
             temp.unchecked_push_back( before, cend() );
             one_sided_swap( temp );
-            BOOST_ASSERT( is_valid() );
+            assert( is_valid() );
         }
 
         template< class ForwardIterator >
@@ -895,14 +888,14 @@ namespace detail
 
         void pop_back()
         {
-            BOOST_ASSERT( !empty() );
+            assert( !empty() );
             auto_buffer_destroy( buffer_ + size_ - 1, std::is_trivially_destructible<T>() );
             --size_;
         }
 
         void pop_back_n( size_type n )
         {
-            BOOST_ASSERT( n <= size_ );
+            assert( n <= size_ );
             if( n )
             {
                 destroy_back_n( n );
@@ -917,9 +910,9 @@ namespace detail
 
         iterator erase( const_iterator where )
         {
-            BOOST_ASSERT( !empty() );
-            BOOST_ASSERT( cbegin() <= where );
-            BOOST_ASSERT( cend() > where );
+            assert( !empty() );
+            assert( cbegin() <= where );
+            assert( cend() > where );
 
             unsigned elements = cend() - where - 1u;
 
@@ -930,31 +923,31 @@ namespace detail
                            const_cast<T*>(where) );
             }
             pop_back();
-            BOOST_ASSERT( !full() );
+            assert( !full() );
             iterator result = const_cast<T*>( where );
-            BOOST_ASSERT( result <= end() );
+            assert( result <= end() );
             return result;
         }
 
         iterator erase( const_iterator from, const_iterator to )
         {
-            BOOST_ASSERT( !(std::distance(from,to)>0) ||
+            assert( !(std::distance(from,to)>0) ||
                           !empty() );
-            BOOST_ASSERT( cbegin() <= from );
-            BOOST_ASSERT( cend() >= to );
+            assert( cbegin() <= from );
+            assert( cend() >= to );
 
             unsigned elements = std::distance(to,cend());
 
             if( elements > 0u )
             {
-                BOOST_ASSERT( elements > 0u );
+                assert( elements > 0u );
                 std::copy( to, to + elements,
                            const_cast<T*>(from) );
             }
             pop_back_n( std::distance(from,to) );
-            BOOST_ASSERT( !full() );
+            assert( !full() );
             iterator result = const_cast<T*>( from );
-            BOOST_ASSERT( result <= end() );
+            assert( result <= end() );
             return result;
         }
 
@@ -965,8 +958,8 @@ namespace detail
 
             reserve_impl( size_ );
             members_.capacity_ = (std::max)(size_type(N),members_.capacity_);
-            BOOST_ASSERT( is_on_stack() || size_ == members_.capacity_ );
-            BOOST_ASSERT( !is_on_stack() || size_ <= members_.capacity_ );
+            assert( is_on_stack() || size_ == members_.capacity_ );
+            assert( !is_on_stack() || size_ <= members_.capacity_ );
         }
 
         pointer uninitialized_grow( size_type n ) // strong
@@ -982,7 +975,7 @@ namespace detail
         void uninitialized_shrink( size_type n ) // nothrow
         {
             // @remark: test for wrap-around
-            BOOST_ASSERT( size_ - n <= members_.capacity_ );
+            assert( size_ - n <= members_.capacity_ );
             size_ -= n;
         }
 
@@ -993,7 +986,7 @@ namespace detail
             else if( n < size() )
                 uninitialized_shrink( size() - n );
 
-           BOOST_ASSERT( size() == n );
+           assert( size() == n );
         }
 
         // nothrow  - if both buffer are on the heap, or
@@ -1009,16 +1002,17 @@ namespace detail
             bool both_on_heap  = !on_stack && !r_on_stack;
             if( both_on_heap )
             {
-                boost::swap( get_allocator(), r.get_allocator() );
-                boost::swap( members_.capacity_, r.members_.capacity_ );
-                boost::swap( buffer_, r.buffer_ );
-                boost::swap( size_, r.size_ );
-                BOOST_ASSERT( is_valid() );
-                BOOST_ASSERT( r.is_valid() );
+                using std::swap;
+                swap( get_allocator(), r.get_allocator() );
+                swap( members_.capacity_, r.members_.capacity_ );
+                swap( buffer_, r.buffer_ );
+                swap( size_, r.size_ );
+                assert( is_valid() );
+                assert( r.is_valid() );
                 return;
             }
 
-            BOOST_ASSERT( on_stack || r_on_stack );
+            assert( on_stack || r_on_stack );
             bool exactly_one_on_stack = (on_stack && !r_on_stack) ||
                                         (!on_stack && r_on_stack);
 
@@ -1028,41 +1022,62 @@ namespace detail
             //
             if( exactly_one_on_stack )
             {
+                using std::swap;
                 auto_buffer* one_on_stack = on_stack ? this : &r;
                 auto_buffer* other        = on_stack ? &r : this;
                 pointer new_buffer = static_cast<T*>(other->members_.address());
                 copy_impl( one_on_stack->begin(), one_on_stack->end(),
                            new_buffer );                            // strong
                 one_on_stack->auto_buffer_destroy();                       // nothrow
-                boost::swap( get_allocator(), r.get_allocator() );  // assume nothrow
-                boost::swap( members_.capacity_, r.members_.capacity_ );
-                boost::swap( size_, r.size_ );
+                swap( get_allocator(), r.get_allocator() );  // assume nothrow
+                swap( members_.capacity_, r.members_.capacity_ );
+                swap( size_, r.size_ );
                 one_on_stack->buffer_ = other->buffer_;
                 other->buffer_        = new_buffer;
-                BOOST_ASSERT( other->is_on_stack() );
-                BOOST_ASSERT( !one_on_stack->is_on_stack() );
-                BOOST_ASSERT( is_valid() );
-                BOOST_ASSERT( r.is_valid() );
+                assert( other->is_on_stack() );
+                assert( !one_on_stack->is_on_stack() );
+                assert( is_valid() );
+                assert( r.is_valid() );
                 return;
             }
 
-            BOOST_ASSERT( on_stack && r_on_stack );
+            assert( on_stack && r_on_stack );
             swap_helper( *this, r, std::is_trivially_assignable<T,T>() );
-            BOOST_ASSERT( is_valid() );
-            BOOST_ASSERT( r.is_valid() );
+            assert( is_valid() );
+            assert( r.is_valid() );
         }
 
     private:
         typedef std::aligned_storage_t< N * sizeof(T),
                                         alignof(T) >
                                storage;
-
-        struct members_type : storage /* to enable EBO */
+        // TODO better solution
+#ifdef _MSC_VER
+        struct members_type
         {
+            storage buffer_;
             size_type capacity_;
 
             members_type( size_type capacity )
                : capacity_(capacity)
+            { }
+
+            const void* address() const
+            {
+                return static_cast<const storage*>(&buffer_);
+            }
+            void* address()
+            {
+                return static_cast<storage*>(&buffer_);
+            }
+        };
+#else
+        struct members_type : storage /* to enable EBO */
+        {
+            size_type capacity_;
+
+            members_type(size_type capacity)
+                : capacity_(capacity)
             { }
 
             const void* address() const
@@ -1074,6 +1089,7 @@ namespace detail
                 return static_cast<storage*>(this);
             }
         };
+#endif
 
         members_type members_;
         pointer      buffer_;
@@ -1135,9 +1151,5 @@ namespace detail
 } // namespace detail
 } // namespace signals2
 }
-
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
-#pragma warning(pop)
-#endif
 
 #endif
