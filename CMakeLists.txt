@@ -24,7 +24,6 @@ target_link_libraries( boost_signals2
         Boost::function
         Boost::iterator
         Boost::mpl
-        Boost::multi_index
         Boost::optional
         Boost::parameter
         Boost::predef
