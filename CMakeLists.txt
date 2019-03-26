@@ -19,6 +19,7 @@ find_package(Threads REQUIRED)
 target_link_libraries( boost_signals2
     INTERFACE
         Boost::assert
+		Boost::bind
         Boost::config
         Boost::core
         Boost::function
@@ -26,11 +27,7 @@ target_link_libraries( boost_signals2
         Boost::mpl
         Boost::optional
         Boost::parameter
-        Boost::predef
-        Boost::preprocessor
-#        Boost::smart_ptr
         Boost::throw_exception
-        Boost::tuple
         Boost::type_traits
         Boost::variant
 		Threads::Threads

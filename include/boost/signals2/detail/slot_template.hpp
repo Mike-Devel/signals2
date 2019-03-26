@@ -18,11 +18,6 @@ namespace boost
     template<typename Signature, typename SlotFunction = boost::function<Signature> >
       class slot;
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
-    template<typename Signature, typename SlotFunction> class slot{};
-#endif
-
-
     template< typename SlotFunction, 
               typename R, 
               typename ... Args>
@@ -43,9 +38,7 @@ namespace boost
       public:
         typedef typename detail::variadic_arg_type<n, Args...>::type type;
       };
-      BOOST_STATIC_CONSTANT(int, arity = sizeof...(Args));
-
-
+      static constexpr int arity = sizeof...(Args);
 
       template<typename F>
       slot(const F& f)

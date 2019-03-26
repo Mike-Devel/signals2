@@ -24,12 +24,11 @@
 //  See http://www.boost.org
 //  for more information
 
-#include <boost/config.hpp>
-#include <memory>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/type_with_alignment.hpp>
 #include <cstddef>
+#include <memory>
 #include <new>
 
 namespace boost

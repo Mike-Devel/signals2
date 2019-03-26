@@ -16,14 +16,14 @@
 #include <boost/aligned_storage.hpp>
 #include <boost/core/no_exceptions_support.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/optional.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/slot_base.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
+
+#include <boost/optional.hpp>
 
 namespace boost {
   namespace signals2 {
