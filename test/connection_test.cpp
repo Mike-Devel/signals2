@@ -9,7 +9,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
 
 namespace bs2 = boost::signals2;
@@ -25,33 +25,33 @@ void swap_test()
 
   {
     bs2::connection conn1 = sig.connect(&myslot);
-    BOOST_CHECK(conn1.connected());
+    BOOST_TEST(conn1.connected());
     bs2::connection conn2;
-    BOOST_CHECK(conn2.connected() == false);
+    BOOST_TEST(conn2.connected() == false);
 
     conn1.swap(conn2);
-    BOOST_CHECK(conn2.connected());
-    BOOST_CHECK(conn1.connected() == false);
+    BOOST_TEST(conn2.connected());
+    BOOST_TEST(conn1.connected() == false);
 
     swap(conn1, conn2);
-    BOOST_CHECK(conn1.connected());
-    BOOST_CHECK(conn2.connected() == false);
+    BOOST_TEST(conn1.connected());
+    BOOST_TEST(conn2.connected() == false);
   }
 
   {
     bs2::scoped_connection conn1;
     conn1 = sig.connect(&myslot);
-    BOOST_CHECK(conn1.connected());
+    BOOST_TEST(conn1.connected());
     bs2::scoped_connection conn2;
-    BOOST_CHECK(conn2.connected() == false);
+    BOOST_TEST(conn2.connected() == false);
 
     conn1.swap(conn2);
-    BOOST_CHECK(conn2.connected());
-    BOOST_CHECK(conn1.connected() == false);
+    BOOST_TEST(conn2.connected());
+    BOOST_TEST(conn1.connected() == false);
 
     swap(conn1, conn2);
-    BOOST_CHECK(conn1.connected());
-    BOOST_CHECK(conn2.connected() == false);
+    BOOST_TEST(conn1.connected());
+    BOOST_TEST(conn2.connected() == false);
   }
 }
 
@@ -61,25 +61,25 @@ void release_test()
   bs2::connection conn;
   {
     bs2::scoped_connection scoped(sig.connect(&myslot));
-    BOOST_CHECK(scoped.connected());
+    BOOST_TEST(scoped.connected());
     conn = scoped.release();
   }
-  BOOST_CHECK(conn.connected());
+  BOOST_TEST(conn.connected());
 
   bs2::connection conn2;
   {
     bs2::scoped_connection scoped(conn);
-    BOOST_CHECK(scoped.connected());
+    BOOST_TEST(scoped.connected());
     conn = scoped.release();
-    BOOST_CHECK(conn.connected());
-    BOOST_CHECK(scoped.connected() == false);
+    BOOST_TEST(conn.connected());
+    BOOST_TEST(scoped.connected() == false);
     conn.disconnect();
 
     // earlier release shouldn't affect new connection
     conn2 = sig.connect(&myslot);
     scoped = conn2;
   }
-  BOOST_CHECK(conn2.connected() == false);
+  BOOST_TEST(conn2.connected() == false);
 }
 
 void move_test()
@@ -90,42 +90,42 @@ void move_test()
   // test move assignment from scoped_connection to connection
   {
     bs2::scoped_connection scoped(sig.connect(&myslot));
-    BOOST_CHECK(scoped.connected());
+    BOOST_TEST(scoped.connected());
     conn = std::move(scoped);
-    BOOST_CHECK(scoped.connected() == false);
+    BOOST_TEST(scoped.connected() == false);
   }
-  BOOST_CHECK(conn.connected());
+  BOOST_TEST(conn.connected());
 
   // test move construction from scoped to scoped
   {
     bs2::scoped_connection scoped2(conn);
-    BOOST_CHECK(scoped2.connected());
+    BOOST_TEST(scoped2.connected());
     bs2::scoped_connection scoped3(std::move(scoped2));
-    BOOST_CHECK(scoped2.connected() == false);
-    BOOST_CHECK(scoped3.connected() == true);
-    BOOST_CHECK(conn.connected() == true);
+    BOOST_TEST(scoped2.connected() == false);
+    BOOST_TEST(scoped3.connected() == true);
+    BOOST_TEST(conn.connected() == true);
   }
-  BOOST_CHECK(conn.connected() == false);
+  BOOST_TEST(conn.connected() == false);
 
   // test move assignment from scoped to scoped
   conn = sig.connect(&myslot);
   {
     bs2::scoped_connection scoped3;
     bs2::scoped_connection scoped2(conn);
-    BOOST_CHECK(scoped2.connected());
+    BOOST_TEST(scoped2.connected());
     scoped3 = std::move(scoped2);
-    BOOST_CHECK(scoped2.connected() == false);
-    BOOST_CHECK(scoped3.connected() == true);
-    BOOST_CHECK(conn.connected() == true);
+    BOOST_TEST(scoped2.connected() == false);
+    BOOST_TEST(scoped3.connected() == true);
+    BOOST_TEST(conn.connected() == true);
   }
-  BOOST_CHECK(conn.connected() == false);
+  BOOST_TEST(conn.connected() == false);
 #endif // !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   release_test();
   swap_test();
   move_test();
-  return 0;
+  return boost::report_errors();
 }

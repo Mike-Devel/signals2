@@ -7,7 +7,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
 #include <iostream>
 #include <vector>
@@ -26,7 +26,7 @@ struct emit_int {
 
   void operator()() const
   {
-    BOOST_CHECK(value == 42 || (!ungrouped1 && !ungrouped2 && !ungrouped3));
+    BOOST_TEST(value == 42 || (!ungrouped1 && !ungrouped2 && !ungrouped3));
     valuesOutput.push_back(value);
     std::cout << value << ' ';
   }
@@ -38,7 +38,7 @@ private:
 struct write_ungrouped1 {
   void operator()() const
   {
-    BOOST_CHECK(!ungrouped1);
+    BOOST_TEST(!ungrouped1);
     ungrouped1 = true;
     std::cout << "(Ungrouped #1)" << ' ';
   }
@@ -47,7 +47,7 @@ struct write_ungrouped1 {
 struct write_ungrouped2 {
   void operator()() const
   {
-    BOOST_CHECK(!ungrouped2);
+    BOOST_TEST(!ungrouped2);
     ungrouped2 = true;
     std::cout << "(Ungrouped #2)" << ' ';
   }
@@ -56,7 +56,7 @@ struct write_ungrouped2 {
 struct write_ungrouped3 {
   void operator()() const
   {
-    BOOST_CHECK(!ungrouped3);
+    BOOST_TEST(!ungrouped3);
     ungrouped3 = true;
     std::cout << "(Ungrouped #3)" << ' ';
   }
@@ -80,10 +80,10 @@ void test_group_compare()
   sig.connect( 1, boost::bind( &return_argument, 1) );
   sig.connect( 2, boost::bind( &return_argument, 2) );
 
-  BOOST_CHECK(sig() == 1);
+  BOOST_TEST(sig() == 1);
 }
 
-int test_main(int, char* [])
+int main(int, char* [])
 {
   using namespace std;
   srand((unsigned int)time(0));
@@ -118,12 +118,12 @@ int test_main(int, char* [])
   sig();
   std::cout << std::endl;
 
-  BOOST_CHECK(valuesOutput == sortedValues);
-  BOOST_CHECK(ungrouped1);
-  BOOST_CHECK(ungrouped2);
-  BOOST_CHECK(ungrouped3);
+  BOOST_TEST(valuesOutput == sortedValues);
+  BOOST_TEST(ungrouped1);
+  BOOST_TEST(ungrouped2);
+  BOOST_TEST(ungrouped3);
 
   test_group_compare();
 
-  return 0;
+  return boost::report_errors();;
 }

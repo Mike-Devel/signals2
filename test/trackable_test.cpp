@@ -9,7 +9,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/trackable.hpp>
 #include <boost/bind.hpp>
@@ -48,9 +48,9 @@ struct max_or_default {
 struct self_deleting : public boost::signals2::trackable {
     void delete_myself(boost::signals2::connection connection)
     {
-      BOOST_CHECK(connection.connected());
+      BOOST_TEST(connection.connected());
       delete this;
-      BOOST_CHECK(connection.connected() == false);
+      BOOST_TEST(connection.connected() == false);
     }
 };
 
@@ -66,34 +66,34 @@ void test_immediate_disconnect_on_delete()
   sig();
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   typedef boost::signals2::signal<int (int), max_or_default<int> > sig_type;
   sig_type s1;
 
   // Test auto-disconnection
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
   {
     short_lived shorty;
     s1.connect(boost::bind<int>(swallow(), &shorty, _1));
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
   // Test auto-disconnection of trackable inside reference_wrapper
   {
     short_lived shorty;
     s1.connect(boost::bind<int>(swallow(), boost::ref(shorty), _1));
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
 
   // Test multiple arg slot constructor
   {
     short_lived shorty;
     s1.connect(sig_type::slot_type(swallow(), &shorty, _1));
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
 
   // Test auto-disconnection of slot before signal connection
   {
@@ -102,10 +102,10 @@ int test_main(int, char*[])
     sig_type::slot_type slot(boost::bind<int>(swallow(), shorty, _1));
     delete shorty;
 
-    BOOST_CHECK(s1(5) == 0);
+    BOOST_TEST(s1(5) == 0);
   }
 
   test_immediate_disconnect_on_delete();
 
-  return 0;
+  return boost::report_errors();;
 }

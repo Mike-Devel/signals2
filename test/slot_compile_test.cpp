@@ -9,7 +9,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2/slot.hpp>
 
 void myslot()
@@ -17,11 +17,11 @@ void myslot()
 
 int myslot2(int)
 {
-  return 0;
+  return boost::report_errors();;
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   boost::signals2::slot<void (void)> sl0(&myslot);
-  return 0;
+  return boost::report_errors();;
 }

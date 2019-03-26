@@ -10,7 +10,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
 
 typedef boost::signals2::signal<void ()> sig0_type;
@@ -29,7 +29,7 @@ struct slot_counter {
         *first;
         ++count;
       }
-      catch(const boost::bad_weak_ptr &)
+      catch(const std::bad_weak_ptr &)
       {}
     }
     return count;
@@ -52,13 +52,13 @@ void slot_connect_test()
   /* 2008-02-28: the following signal invocation triggered a (bogus) failed assertion of _shared_state.unique()
   at detail/signal_template.hpp:285 */
   sig();
-  BOOST_CHECK(sig.num_slots() == 2);
+  BOOST_TEST(sig.num_slots() == 2);
   sig.disconnect(&my_slot);
-  BOOST_CHECK(sig.num_slots() == 1);
+  BOOST_TEST(sig.num_slots() == 1);
   /* 2008-03-11: checked iterator barfed on next line, due to bad semantics of copy construction
   for boost::signals2::detail::grouped_list */
   sig();
-  BOOST_CHECK(sig.num_slots() == 2);
+  BOOST_TEST(sig.num_slots() == 2);
 }
 
 /* 2008-03-10: we weren't disconnecting old connection in scoped_connection assignment operator */
@@ -68,11 +68,11 @@ void scoped_connection_test()
   signal_type sig;
   {
     boost::signals2::scoped_connection conn(sig.connect(&my_slot));
-    BOOST_CHECK(sig() == 1);
+    BOOST_TEST(sig() == 1);
     conn = sig.connect(&my_slot);
-    BOOST_CHECK(sig() == 1);
+    BOOST_TEST(sig() == 1);
   }
-  BOOST_CHECK(sig() == 0);
+  BOOST_TEST(sig() == 0);
 }
 
 // testsignal that returns a reference type
@@ -80,7 +80,7 @@ void scoped_connection_test()
 struct ref_returner
 {
   static int i;
-  
+
   int& ref_return_slot()
   {
     return i;
@@ -95,16 +95,16 @@ void reference_return_test()
   ref_returner rr;
   rTest.connect(boost::bind(&ref_returner::ref_return_slot, &rr));
   int& r = *rTest();
-  BOOST_CHECK(ref_returner::i == 0);
+  BOOST_TEST(ref_returner::i == 0);
   r = 1;
-  BOOST_CHECK(ref_returner::i == 1);
+  BOOST_TEST(ref_returner::i == 1);
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   slot_connect_test();
   scoped_connection_test();
 	reference_return_test();
-	
-  return 0;
+
+  return boost::report_errors();;
 }

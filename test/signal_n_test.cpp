@@ -9,12 +9,12 @@
 
 #include <boost/bind.hpp>
 #include <boost/config.hpp>
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 #ifndef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-int test_main(int, char* [])
+int main(int, char* [])
 {
-  return 0;
+  return boost::report_errors();;
 }
 #else // BOOST_NO_CXX11_VARIADIC_TEMPLATES
 
@@ -83,33 +83,33 @@ test_zero_args()
     boost::signals2::connection c42 = s0.connect(i42);
     boost::signals2::connection c37 = s0.connect(&get_37);
 
-    BOOST_CHECK(s0() == 72);
+    BOOST_TEST(s0() == 72);
 
     s0.disconnect("72");
-    BOOST_CHECK(s0() == 62);
+    BOOST_TEST(s0() == 62);
 
     c72.disconnect(); // Double-disconnect should be safe
-    BOOST_CHECK(s0() == 62);
+    BOOST_TEST(s0() == 62);
 
     s0.disconnect("72"); // Triple-disconect should be safe
-    BOOST_CHECK(s0() == 62);
+    BOOST_TEST(s0() == 62);
 
     // Also connect 63 in the same group as 62
     s0.connect("6x", i63);
-    BOOST_CHECK(s0() == 63);
+    BOOST_TEST(s0() == 63);
 
     // Disconnect all of the 60's
     s0.disconnect("6x");
-    BOOST_CHECK(s0() == 42);
+    BOOST_TEST(s0() == 42);
 
     c42.disconnect();
-    BOOST_CHECK(s0() == 37);
+    BOOST_TEST(s0() == 37);
 
     c37.disconnect();
-    BOOST_CHECK(s0() == 2);
+    BOOST_TEST(s0() == 2);
 
     c2.disconnect();
-    BOOST_CHECK(s0() == 0);
+    BOOST_TEST(s0() == 0);
   }
 
   {
@@ -120,7 +120,7 @@ test_zero_args()
     boost::signals2::connection c42 = s0.connect(i42);
 
     const boost::signals2::signal0<int, max_or_default<int> >& cs0 = s0;
-    BOOST_CHECK(cs0() == 72);
+    BOOST_TEST(cs0() == 72);
   }
 
   {
@@ -131,8 +131,8 @@ test_zero_args()
     boost::signals2::connection c7 = s0.connect(i7);
     boost::signals2::connection c10 = s0.connect(i10);
 
-    BOOST_CHECK(s0() == 10);
-    BOOST_CHECK(s0() == 11);
+    BOOST_TEST(s0() == 10);
+    BOOST_TEST(s0() == 11);
   }
 }
 
@@ -144,8 +144,8 @@ test_one_arg()
   s1.connect(std::negate<int>());
   s1.connect(boost::bind(std::multiplies<int>(), 2, _1));
 
-  BOOST_CHECK(s1(1) == 2);
-  BOOST_CHECK(s1(-1) == 1);
+  BOOST_TEST(s1(1) == 2);
+  BOOST_TEST(s1(-1) == 1);
 }
 
 static void
@@ -156,7 +156,7 @@ test_signal_signal_connect()
 
   s1.connect(std::negate<int>());
 
-  BOOST_CHECK(s1(3) == -3);
+  BOOST_TEST(s1(3) == -3);
 
   {
     signal_type s2;
@@ -164,11 +164,11 @@ test_signal_signal_connect()
     s2.connect(boost::bind(std::multiplies<int>(), 2, _1));
     s2.connect(boost::bind(std::multiplies<int>(), -3, _1));
 
-    BOOST_CHECK(s2(-3) == 9);
-    BOOST_CHECK(s1(3) == 6);
+    BOOST_TEST(s2(-3) == 9);
+    BOOST_TEST(s1(3) == 6);
   } // s2 goes out of scope and disconnects
 
-  BOOST_CHECK(s1(3) == -3);
+  BOOST_TEST(s1(3) == -3);
 
   // test auto-track of signal wrapped in a reference_wrapper
   {
@@ -177,11 +177,11 @@ test_signal_signal_connect()
     s2.connect(boost::bind(std::multiplies<int>(), 2, _1));
     s2.connect(boost::bind(std::multiplies<int>(), -3, _1));
 
-    BOOST_CHECK(s2(-3) == 9);
-    BOOST_CHECK(s1(3) == 6);
+    BOOST_TEST(s2(-3) == 9);
+    BOOST_TEST(s1(3) == 6);
   } // s2 goes out of scope and disconnects
 
-  BOOST_CHECK(s1(3) == -3);
+  BOOST_TEST(s1(3) == -3);
 }
 
 struct EventCounter
@@ -204,12 +204,12 @@ test_ref()
 
   {
     boost::signals2::scoped_connection c(s.connect(boost::ref(ec)));
-    BOOST_CHECK(ec.count == 0);
+    BOOST_TEST(ec.count == 0);
     s();
-    BOOST_CHECK(ec.count == 1);
+    BOOST_TEST(ec.count == 1);
   }
   s();
-  BOOST_CHECK(ec.count == 1);
+  BOOST_TEST(ec.count == 1);
 }
 
 static void test_default_combiner()
@@ -217,17 +217,17 @@ static void test_default_combiner()
   boost::signals2::signal0<int> sig;
   boost::optional<int> result;
   result = sig();
-  BOOST_CHECK(!result);
+  BOOST_TEST(!result);
 
   sig.connect(make_int(0, 0));
   result = sig();
-  BOOST_CHECK(result);
-  BOOST_CHECK(*result == 0);
+  BOOST_TEST(result);
+  BOOST_TEST(*result == 0);
 
   sig.connect(make_int(1, 1));
   result = sig();
-  BOOST_CHECK(result);
-  BOOST_CHECK(*result == 1);
+  BOOST_TEST(result);
+  BOOST_TEST(*result == 1);
 }
 
 template<typename ResultType>
@@ -257,9 +257,9 @@ template<typename ResultType>
     ResultType (*fp)(const boost::signals2::connection &conn, int) = &disconnecting_slot<ResultType>;
     slot_type myslot(fp);
     sig.connect_extended(myslot);
-    BOOST_CHECK(sig.num_slots() == 1);
+    BOOST_TEST(sig.num_slots() == 1);
     sig(0);
-    BOOST_CHECK(sig.num_slots() == 0);
+    BOOST_TEST(sig.num_slots() == 0);
   }
   { // test 0 arg signal
     typedef boost::signals2::signal0<ResultType> signal_type;
@@ -269,9 +269,9 @@ template<typename ResultType>
     ResultType (*fp)(const boost::signals2::connection &conn, int) = &disconnecting_slot<ResultType>;
     slot_type myslot(fp, _1, 0);
     sig.connect_extended(myslot);
-    BOOST_CHECK(sig.num_slots() == 1);
+    BOOST_TEST(sig.num_slots() == 1);
     sig();
-    BOOST_CHECK(sig.num_slots() == 0);
+    BOOST_TEST(sig.num_slots() == 0);
   }
   // test disconnection by slot
   {
@@ -282,9 +282,9 @@ template<typename ResultType>
     ResultType (*fp)(const boost::signals2::connection &conn, int) = &disconnecting_slot<ResultType>;
     slot_type myslot(fp);
     sig.connect_extended(myslot);
-    BOOST_CHECK(sig.num_slots() == 1);
+    BOOST_TEST(sig.num_slots() == 1);
     sig.disconnect(fp);
-    BOOST_CHECK(sig.num_slots() == 0);
+    BOOST_TEST(sig.num_slots() == 0);
   }
 }
 class dummy_combiner
@@ -308,11 +308,11 @@ test_set_combiner()
 {
   typedef boost::signals2::signal0<int, dummy_combiner> signal_type;
   signal_type sig(dummy_combiner(0));
-  BOOST_CHECK(sig() == 0);
-  BOOST_CHECK(sig.combiner()(0,0) == 0);
+  BOOST_TEST(sig() == 0);
+  BOOST_TEST(sig.combiner()(0,0) == 0);
   sig.set_combiner(dummy_combiner(1));
-  BOOST_CHECK(sig() == 1);
-  BOOST_CHECK(sig.combiner()(0,0) == 1);
+  BOOST_TEST(sig() == 1);
+  BOOST_TEST(sig.combiner()(0,0) == 1);
 }
 
 static void
@@ -320,22 +320,22 @@ test_swap()
 {
   typedef boost::signals2::signal0<int, dummy_combiner> signal_type;
   signal_type sig1(dummy_combiner(1));
-  BOOST_CHECK(sig1() == 1);
+  BOOST_TEST(sig1() == 1);
   signal_type sig2(dummy_combiner(2));
-  BOOST_CHECK(sig2() == 2);
+  BOOST_TEST(sig2() == 2);
 
   sig1.swap(sig2);
-  BOOST_CHECK(sig1() == 2);
-  BOOST_CHECK(sig2() == 1);
+  BOOST_TEST(sig1() == 2);
+  BOOST_TEST(sig2() == 1);
 
   using std::swap;
   swap(sig1, sig2);
-  BOOST_CHECK(sig1() == 1);
-  BOOST_CHECK(sig2() == 2);
+  BOOST_TEST(sig1() == 1);
+  BOOST_TEST(sig2() == 2);
 }
 
 int
-test_main(int, char* [])
+main(int, char* [])
 {
   test_zero_args();
   test_one_arg();
@@ -346,7 +346,7 @@ test_main(int, char* [])
   test_extended_slot<int>();
   test_set_combiner();
   test_swap();
-  return 0;
+  return boost::report_errors();;
 }
 
 #endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES

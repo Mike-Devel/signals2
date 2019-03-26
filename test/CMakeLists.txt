@@ -7,7 +7,7 @@
 
 if(MSVC)
 	STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	add_definitions( /D_SILENCE_CXX17_SHARED_PTR_UNIQUE_DEPRECATION_WARNING )
+	add_definitions( /D_SILENCE_CXX17_SHARED_PTR_UNIQUE_DEPRECATION_WARNING /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS )
 else()
 	add_compile_options( -Wall )
 endif()
@@ -16,10 +16,13 @@ file( GLOB test_src_files *.cpp )
 
 list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/invocation_benchmark.cpp)
 list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/signals_vs_signals2_benchmark.cpp)
+list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/mutex_test.cpp)
+list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/threading_models_test.cpp)
+
 
 find_package(Threads REQUIRED)
 
-foreach( file IN LISTS test_src_files )
+ foreach( file IN LISTS test_src_files )
 
 	get_filename_component( test_name ${file} NAME_WE )
 	set( executable_name test_boost_signals2_${test_name} )
@@ -27,8 +30,8 @@ foreach( file IN LISTS test_src_files )
 	target_link_libraries( ${executable_name}
 		PUBLIC
 			Boost::signals2
-			Boost::test
-			Boost::timer
+#			Boost::test
+#			Boost::timer
 			Threads::Threads
 	)
 	add_test( NAME ${executable_name} COMMAND ${executable_name} )

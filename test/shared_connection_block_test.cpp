@@ -8,15 +8,15 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
-#include <boost/array.hpp>
+#include <boost/core/lightweight_test.hpp>
+#include <array>
 #include <boost/signals2/shared_connection_block.hpp>
 #include <boost/signals2/signal.hpp>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-static boost::array<boost::signals2::connection, 4> connections;
+static std::array<boost::signals2::connection, 4> connections;
 
 static std::ostringstream test_output;
 
@@ -31,7 +31,7 @@ struct test_slot {
   int value;
 };
 
-int test_main(int, char* [])
+int main(int, char* [])
 {
   boost::signals2::signal<void ()> s0;
 
@@ -44,16 +44,16 @@ int test_main(int, char* [])
   {
     // Blocking 2
     boost::signals2::shared_connection_block block(connections.at(2));
-    BOOST_CHECK(block.blocking());
+    BOOST_TEST(block.blocking());
     test_output.str("");
     s0();
-    BOOST_CHECK(test_output.str() == "013");
+    BOOST_TEST(test_output.str() == "013");
   }
 
   // Unblocking 2
   test_output.str("");
   s0();
-  BOOST_CHECK(test_output.str() == "0123");
+  BOOST_TEST(test_output.str() == "0123");
 
   {
     // Blocking 1 through const connection
@@ -62,51 +62,51 @@ int test_main(int, char* [])
     test_output.str("");
     s0();
     std::cout << test_output.str() << std::endl;
-    BOOST_CHECK(test_output.str() == "023");
+    BOOST_TEST(test_output.str() == "023");
     // Unblocking 1
     block.unblock();
-    BOOST_CHECK(block.blocking() == false);
+    BOOST_TEST(block.blocking() == false);
     test_output.str("");
     s0();
-    BOOST_CHECK(test_output.str() == "0123");
+    BOOST_TEST(test_output.str() == "0123");
   }
 
   {
     // initially unblocked
     boost::signals2::shared_connection_block block(connections.at(3), false);
-    BOOST_CHECK(block.blocking() == false);
+    BOOST_TEST(block.blocking() == false);
     test_output.str("");
     s0();
-    BOOST_CHECK(test_output.str() == "0123");
+    BOOST_TEST(test_output.str() == "0123");
     // block
     block.block();
     test_output.str("");
     s0();
-    BOOST_CHECK(test_output.str() == "012");
+    BOOST_TEST(test_output.str() == "012");
   }
 
   {
     // test default constructed block
     boost::signals2::shared_connection_block block;
-    BOOST_CHECK(block.blocking() == true);
+    BOOST_TEST(block.blocking() == true);
     block.unblock();
-    BOOST_CHECK(block.blocking() == false);
+    BOOST_TEST(block.blocking() == false);
     block.block();
-    BOOST_CHECK(block.blocking() == true);
+    BOOST_TEST(block.blocking() == true);
 
     // test assignment
     {
       block.unblock();
       boost::signals2::shared_connection_block block2(connections.at(0));
-      BOOST_CHECK(block.connection() != block2.connection());
-      BOOST_CHECK(block.blocking() != block2.blocking());
+      BOOST_TEST(block.connection() != block2.connection());
+      BOOST_TEST(block.blocking() != block2.blocking());
       block = block2;
-      BOOST_CHECK(block.connection() == block2.connection());
-      BOOST_CHECK(block.blocking() == block2.blocking());
+      BOOST_TEST(block.connection() == block2.connection());
+      BOOST_TEST(block.blocking() == block2.blocking());
     }
     test_output.str("");
     s0();
-    BOOST_CHECK(test_output.str() == "123");
+    BOOST_TEST(test_output.str() == "123");
   }
-  return 0;
+  return boost::report_errors();;
 }

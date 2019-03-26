@@ -12,7 +12,7 @@
 #include <memory>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 
@@ -50,20 +50,20 @@ static int myfunc(int i, double )
   return i;
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   typedef boost::signals2::signal<int (int), max_or_default<int> > sig_type;
   sig_type s1;
   boost::signals2::connection connection;
 
   // Test auto-disconnection
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
   {
     std::shared_ptr<int> shorty(new int());
     s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track(shorty));
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
 
   // Test auto-disconnection of slot before signal connection
   {
@@ -77,7 +77,7 @@ int test_main(int, char*[])
     slot.track(shorty);
     shorty.reset();
     s1.connect(slot);
-    BOOST_CHECK(s1(5) == 0);
+    BOOST_TEST(s1(5) == 0);
   }
 
   // Test binding of a slot to another slot
@@ -86,38 +86,38 @@ int test_main(int, char*[])
     boost::signals2::slot<int (double)> other_slot(&myfunc, boost::cref(*shorty.get()), _1);
     other_slot.track(shorty);
     connection = s1.connect(sig_type::slot_type(other_slot, 0.5).track(other_slot));
-    BOOST_CHECK(s1(3) == 2);
+    BOOST_TEST(s1(3) == 2);
   }
-  BOOST_CHECK(connection.connected() == false);
-  BOOST_CHECK(s1(3) == 0);
+  BOOST_TEST(connection.connected() == false);
+  BOOST_TEST(s1(3) == 0);
 
   // Test binding of a signal as a slot
   {
     sig_type s2;
     s1.connect(s2);
     s2.connect(sig_type::slot_type(&myfunc, _1, 0.7));
-    BOOST_CHECK(s1(4) == 4);
+    BOOST_TEST(s1(4) == 4);
   }
-  BOOST_CHECK(s1(4) == 0);
+  BOOST_TEST(s1(4) == 0);
 
   // Test tracking of null but not empty shared_ptr
-  BOOST_CHECK(s1(2) == 0);
+  BOOST_TEST(s1(2) == 0);
   {
     std::shared_ptr<int> shorty((int*)(0));
     s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track(shorty));
-    BOOST_CHECK(s1(2) == 2);
+    BOOST_TEST(s1(2) == 2);
   }
-  BOOST_CHECK(s1(2) == 0);
+  BOOST_TEST(s1(2) == 0);
 
 #ifndef BOOST_NO_CXX11_SMART_PTR
   // Test tracking through std::shared_ptr/weak_ptr
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
   {
     std::shared_ptr<int> shorty(new int());
     s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track_foreign(shorty));
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
   {
     std::shared_ptr<int> shorty(new int());
     s1.connect
@@ -132,14 +132,14 @@ int test_main(int, char*[])
         std::weak_ptr<int>(shorty)
       )
     );
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
   // make sure tracking foreign shared_ptr<const void> works
   {
     std::shared_ptr<const void> shorty(new int());
     s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track_foreign(shorty));
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
   {
     std::shared_ptr<int> shorty(new int());
@@ -155,11 +155,11 @@ int test_main(int, char*[])
         std::weak_ptr<const void>(shorty)
       )
     );
-    BOOST_CHECK(s1(5) == 5);
+    BOOST_TEST(s1(5) == 5);
   }
-  BOOST_CHECK(s1(5) == 0);
-  BOOST_CHECK(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
+  BOOST_TEST(s1(5) == 0);
 #endif
 
-  return 0;
+  return boost::report_errors();;
 }

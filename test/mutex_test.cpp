@@ -15,7 +15,7 @@
 // note boost/test/minimal.hpp can cause windows.h to get included, which
 // can screw up our checks of _WIN32_WINNT if it is included
 // after boost/signals2/mutex.hpp.  Frank Hess 2009-03-07.
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/signals2/dummy_mutex.hpp>
@@ -33,7 +33,7 @@ public:
         : done(false), m_secs(secs) { }
     void start()
     {
-        boost::mutex::scoped_lock lock(mutex); 
+        boost::mutex::scoped_lock lock(mutex);
         done = false;
     }
     void finish()
@@ -111,10 +111,10 @@ struct test_lock
         // Test the lock's constructors.
         {
             lock_type lock(mutex, boost::defer_lock);
-            BOOST_CHECK(!lock);
+            BOOST_TEST(!lock);
         }
         lock_type lock(mutex);
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(lock ? true : false);
 
         // Construct a fast time out.
         boost::posix_time::time_duration timeout = boost::posix_time::milliseconds(100);
@@ -122,14 +122,14 @@ struct test_lock
         // Test the lock and the mutex with condition variables.
         // No one is going to notify this condition variable.  We expect to
         // time out.
-        BOOST_CHECK(!condition.timed_wait(lock, timeout));
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(!condition.timed_wait(lock, timeout));
+        BOOST_TEST(lock ? true : false);
 
         // Test the lock and unlock methods.
         lock.unlock();
-        BOOST_CHECK(!lock);
+        BOOST_TEST(!lock);
         lock.lock();
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(lock ? true : false);
     }
 };
 
@@ -147,14 +147,14 @@ struct test_trylock
         // Test the lock's constructors.
         {
             lock_type lock(mutex, boost::try_to_lock);
-            BOOST_CHECK(lock ? true : false);
+            BOOST_TEST(lock ? true : false);
         }
         {
             lock_type lock(mutex, boost::defer_lock);
-            BOOST_CHECK(!lock);
+            BOOST_TEST(!lock);
         }
         lock_type lock(mutex, boost::try_to_lock);
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(lock ? true : false);
 
         // Construct a fast time out.
         boost::posix_time::time_duration timeout = boost::posix_time::milliseconds(100);
@@ -162,18 +162,18 @@ struct test_trylock
         // Test the lock and the mutex with condition variables.
         // No one is going to notify this condition variable.  We expect to
         // time out.
-        BOOST_CHECK(!condition.timed_wait(lock, timeout));
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(!condition.timed_wait(lock, timeout));
+        BOOST_TEST(lock ? true : false);
 
         // Test the lock, unlock and trylock methods.
         lock.unlock();
-        BOOST_CHECK(!lock);
+        BOOST_TEST(!lock);
         lock.lock();
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(lock ? true : false);
         lock.unlock();
-        BOOST_CHECK(!lock);
-        BOOST_CHECK(lock.try_lock());
-        BOOST_CHECK(lock ? true : false);
+        BOOST_TEST(!lock);
+        BOOST_TEST(lock.try_lock());
+        BOOST_TEST(lock ? true : false);
     }
 };
 
@@ -226,17 +226,17 @@ struct test_lock_exclusion
         {
             {
                 boost::mutex::scoped_lock lk(done_mutex);
-                BOOST_CHECK(!done_cond.timed_wait(lk, boost::posix_time::seconds(1),
+                BOOST_TEST(!done_cond.timed_wait(lk, boost::posix_time::seconds(1),
                                                  boost::bind(&this_type::is_done,this)));
             }
             lock.unlock();
             {
                 boost::mutex::scoped_lock lk(done_mutex);
-                BOOST_CHECK(done_cond.timed_wait(lk, boost::posix_time::seconds(1),
+                BOOST_TEST(done_cond.timed_wait(lk, boost::posix_time::seconds(1),
                                                  boost::bind(&this_type::is_done,this)));
             }
             t.join();
-            BOOST_CHECK(locked);
+            BOOST_TEST(locked);
         }
         catch(...)
         {
@@ -280,10 +280,10 @@ void test_dummy_mutex()
     timed_test(&do_test_dummy_mutex, 2);
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
     test_mutex();
     test_dummy_mutex();
 
-    return 0;
+    return boost::report_errors();;
 }

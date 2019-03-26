@@ -8,7 +8,7 @@
 // For more information, see http://www.boost.org
 
 #include <memory>
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 
@@ -32,15 +32,15 @@ void do_delayed_connect(std::shared_ptr<with_constant> &wc,
   wc.reset();
 
   boost::signals2::connection c = sig.connect(slot);
-  BOOST_CHECK(!c.connected());
+  BOOST_TEST(!c.connected());
 }
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   sig_type s1;
   std::shared_ptr<with_constant> wc1(new with_constant(7));
 
   do_delayed_connect(wc1, s1, sig_type::slot_type(&with_constant::add, wc1.get(), _1).track(wc1));
 
-  return 0;
+  return boost::report_errors();;
 }

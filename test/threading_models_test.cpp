@@ -12,7 +12,7 @@
 // note boost/test/minimal.hpp can cause windows.h to get included, which
 // can screw up our checks of _WIN32_WINNT if it is included
 // after boost/signals2/mutex.hpp.  Frank Hess 2009-03-07.
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 #include <boost/signals2.hpp>
 #include <boost/thread/mutex.hpp>
@@ -47,9 +47,9 @@ void simple_test()
 {
   signal_type sig;
   sig.connect(typename signal_type::slot_type(&myslot));
-  BOOST_CHECK(sig() == 1);
+  BOOST_TEST(sig() == 1);
   sig.disconnect(&myslot);
-  BOOST_CHECK(sig() == 0);
+  BOOST_TEST(sig() == 0);
 }
 
 class recursion_checking_dummy_mutex
@@ -58,24 +58,24 @@ class recursion_checking_dummy_mutex
 public:
   recursion_checking_dummy_mutex(): recursion_count(0)
   {}
-  void lock() 
-  { 
+  void lock()
+  {
     BOOST_REQUIRE(recursion_count == 0);
     ++recursion_count;
   }
-  bool try_lock() 
-  { 
-    lock(); 
+  bool try_lock()
+  {
+    lock();
     return true;
   }
-  void unlock() 
-  { 
+  void unlock()
+  {
     --recursion_count;
     BOOST_REQUIRE(recursion_count == 0);
   }
 };
 
-int test_main(int, char*[])
+int main(int, char*[])
 {
   typedef boost::signals2::signal<void (), slot_counter, int, std::less<int>, boost::function<void ()>,
     boost::function<void (const boost::signals2::connection &)>, recursion_checking_dummy_mutex> sig0_rc_type;
@@ -86,5 +86,5 @@ int test_main(int, char*[])
   typedef boost::signals2::signal<void (), slot_counter, int, std::less<int>, boost::function<void ()>,
     boost::function<void (const boost::signals2::connection &)>, boost::signals2::dummy_mutex> sig0_st_type;
   simple_test<sig0_st_type>();
-  return 0;
+  return boost::report_errors();;
 }

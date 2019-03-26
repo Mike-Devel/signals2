@@ -54,5 +54,5 @@ int main(int argc, const char **argv)
     threads.create_thread(boost::bind(&thread_initial, &sig, signal_invocations_per_thread));
   }
   threads.join_all();
-  return 0;
+  return boost::report_errors();;
 }

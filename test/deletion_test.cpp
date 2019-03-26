@@ -8,7 +8,7 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/test/minimal.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
 #include <iostream>
 #include <string>
@@ -51,14 +51,14 @@ test_remove_self()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "013");
+  BOOST_TEST(test_output == "013");
 
   s0.disconnect_all_slots();
-  BOOST_CHECK(s0.empty());
+  BOOST_TEST(s0.empty());
 
   connections[0] = s0.connect(remove_connection(0));
   connections[1] = s0.connect(remove_connection(1));
@@ -69,14 +69,14 @@ test_remove_self()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "012");
+  BOOST_TEST(test_output == "012");
 
   s0.disconnect_all_slots();
-  BOOST_CHECK(s0.num_slots() == 0);
+  BOOST_TEST(s0.num_slots() == 0);
 
   connections[0] = s0.connect(remove_connection(0, 0));
   connections[1] = s0.connect(remove_connection(1));
@@ -87,14 +87,14 @@ test_remove_self()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "123");
+  BOOST_TEST(test_output == "123");
 
   s0.disconnect_all_slots();
-  BOOST_CHECK(s0.empty());
+  BOOST_TEST(s0.empty());
 
   connections[0] = s0.connect(remove_connection(0, 0));
   connections[1] = s0.connect(remove_connection(1, 1));
@@ -105,11 +105,11 @@ test_remove_self()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "");
+  BOOST_TEST(test_output == "");
 }
 
 static void
@@ -126,14 +126,14 @@ test_remove_prior()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "123");
+  BOOST_TEST(test_output == "123");
 
   s0.disconnect_all_slots();
-  BOOST_CHECK(s0.empty());
+  BOOST_TEST(s0.empty());
 
   connections[0] = s0.connect(remove_connection(0));
   connections[1] = s0.connect(remove_connection(1));
@@ -144,11 +144,11 @@ test_remove_prior()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "013");
+  BOOST_TEST(test_output == "013");
 }
 
 static void
@@ -165,14 +165,14 @@ test_remove_after()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "023");
+  BOOST_TEST(test_output == "023");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "023");
+  BOOST_TEST(test_output == "023");
 
   s0.disconnect_all_slots();
-  BOOST_CHECK(s0.empty());
+  BOOST_TEST(s0.empty());
 
   connections[0] = s0.connect(remove_connection(0));
   connections[1] = s0.connect(remove_connection(1, 3));
@@ -183,11 +183,11 @@ test_remove_after()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "012");
+  BOOST_TEST(test_output == "012");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "012");
+  BOOST_TEST(test_output == "012");
 }
 
 static void
@@ -204,11 +204,11 @@ test_bloodbath()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "023");
+  BOOST_TEST(test_output == "023");
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "3");
+  BOOST_TEST(test_output == "3");
 }
 
 static void
@@ -225,7 +225,7 @@ test_disconnect_equal()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "0123");
+  BOOST_TEST(test_output == "0123");
 
 #if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
   connections[2].disconnect();
@@ -235,57 +235,57 @@ test_disconnect_equal()
 
   test_output = "";
   s0(); std::cout << std::endl;
-  BOOST_CHECK(test_output == "013");
+  BOOST_TEST(test_output == "013");
 }
 
-struct signal_deletion_tester 
-{ 
+struct signal_deletion_tester
+{
 public:
   signal_deletion_tester() {
     b_has_run = false;
     sig = new boost::signals2::signal<void(void)>();
-    connection0 = sig->connect(0, boost::bind(&signal_deletion_tester::a, this)); 
+    connection0 = sig->connect(0, boost::bind(&signal_deletion_tester::a, this));
     connection1 = sig->connect(1, boost::bind(&signal_deletion_tester::b, this));
   }
-  
+
   ~signal_deletion_tester()
   {
     if(sig != 0)
       delete sig;
   }
-  
-  void a() 
+
+  void a()
   {
     if(sig != 0)
       delete sig;
     sig = 0;
   }
-  
-  void b() 
+
+  void b()
   {
     b_has_run = true;
-  } 
-  
+  }
+
   boost::signals2::signal<void(void)> *sig;
   bool b_has_run;
   boost::signals2::connection connection0;
   boost::signals2::connection connection1;
-}; 
+};
 
 // If a signal is deleted mid-invocation, the invocation in progress
 // should complete normally.  Once all invocations complete, all
-// slots which were connected to the deleted signal should be in the 
+// slots which were connected to the deleted signal should be in the
 // disconnected state.
 static void test_signal_deletion()
 {
   signal_deletion_tester tester;
   (*tester.sig)();
-  BOOST_CHECK(tester.b_has_run);
-  BOOST_CHECK(tester.connection0.connected() == false);
-  BOOST_CHECK(tester.connection1.connected() == false);
+  BOOST_TEST(tester.b_has_run);
+  BOOST_TEST(tester.connection0.connected() == false);
+  BOOST_TEST(tester.connection1.connected() == false);
 }
 
-int test_main(int, char* [])
+int main(int, char* [])
 {
   test_remove_self();
   test_remove_prior();
@@ -293,5 +293,5 @@ int test_main(int, char* [])
   test_bloodbath();
   test_disconnect_equal();
   test_signal_deletion();
-  return 0;
+  return boost::report_errors();;
 }
