@@ -16,7 +16,6 @@
 #include <boost/signals2/slot_base.hpp>
 
 #include <boost/signals2/detail/auto_buffer.hpp>
-#include <boost/signals2/detail/unique_lock.hpp>
 
 #include <boost/optional.hpp>
 

@@ -18,7 +18,6 @@
 
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/null_output_iterator.hpp>
-#include <boost/signals2/detail/unique_lock.hpp>
 
 #include <memory>
 #include <variant>
@@ -81,7 +80,7 @@ namespace boost
         virtual bool connected() const = 0;
         std::shared_ptr<void> get_blocker()
         {
-          unique_lock<connection_body_base> local_lock(*this);
+          std::lock_guard<connection_body_base> local_lock(*this);
           std::shared_ptr<void> blocker = _weak_blocker.lock();
           if(blocker == std::shared_ptr<void>())
           {

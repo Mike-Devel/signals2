@@ -17,7 +17,6 @@
 #include <boost/signals2/mutex.hpp>
 #include <boost/signals2/slot.hpp>
 
-#include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/signals2/detail/replace_slot_function.hpp>
 #include <boost/signals2/detail/result_type_wrapper.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
@@ -280,12 +279,12 @@ public:
 	}
 	combiner_type combiner() const
 	{
-		unique_lock<mutex_type> lock(*_mutex);
+		std::lock_guard<mutex_type> lock(*_mutex);
 		return _shared_state->combiner();
 	}
 	void set_combiner(const combiner_type& combiner_arg)
 	{
-		unique_lock<mutex_type> lock(*_mutex);
+		std::lock_guard<mutex_type> lock(*_mutex);
 		if (_shared_state.unique())
 			_shared_state->combiner() = combiner_arg;
 		else
@@ -415,7 +414,7 @@ private:
 	}
 	std::shared_ptr<invocation_state> get_readable_state() const
 	{
-		unique_lock<mutex_type> list_lock(*_mutex);
+		std::lock_guard<mutex_type> list_lock(*_mutex);
 		return _shared_state;
 	}
 	connection_body_type create_new_connection(garbage_collecting_lock<mutex_type>& lock,
