@@ -7,10 +7,12 @@
 
 // See http://www.boost.org/libs/signals2 for library home page.
 
-#include <memory>
 #include <boost/signals2/deconstruct.hpp>
 #include <boost/signals2/deconstruct_ptr.hpp>
+
 #include <boost/core/lightweight_test.hpp>
+
+#include <memory>
 
 class X: public boost::signals2::postconstructible {
 public:

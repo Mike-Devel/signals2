@@ -9,19 +9,16 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2/slot.hpp>
+
+#include <boost/core/lightweight_test.hpp>
 
 void myslot()
 {}
 
-int myslot2(int)
-{
-  return boost::report_errors();;
-}
 
 int main(int, char*[])
 {
   boost::signals2::slot<void (void)> sl0(&myslot);
-  return boost::report_errors();;
+  return boost::report_errors();
 }

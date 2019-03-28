@@ -11,10 +11,12 @@
 
 #include <boost/signals2.hpp>
 
+#include <boost/core/lightweight_test.hpp>
+
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/core/lightweight_test.hpp>
 #include <boost/bind.hpp>
+
 #include <memory>
 
 struct swallow {

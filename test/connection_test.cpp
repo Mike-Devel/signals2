@@ -9,8 +9,9 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
+
+#include <boost/core/lightweight_test.hpp>
 
 namespace bs2 = boost::signals2;
 

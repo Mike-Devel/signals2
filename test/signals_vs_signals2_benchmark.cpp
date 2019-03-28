@@ -5,12 +5,14 @@
 // 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <cstdlib>
-#include <iostream>
+#include <boost/signals2.hpp>
+
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
-#include <boost/signals2.hpp>
 #include <boost/function.hpp>
+
+#include <cstdlib>
+#include <iostream>
 //#include <boost/signals.hpp>
 
 typedef boost::signals2::signal<void (int),

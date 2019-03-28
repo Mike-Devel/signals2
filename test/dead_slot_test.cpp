@@ -7,10 +7,13 @@
 
 // For more information, see http://www.boost.org
 
-#include <memory>
-#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
+
+#include <boost/core/lightweight_test.hpp>
+
 #include <boost/bind.hpp>
+
+#include <memory>
 
 typedef boost::signals2::signal<int (int)> sig_type;
 

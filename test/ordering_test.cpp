@@ -8,14 +8,17 @@
 // For more information, see http://www.boost.org
 
 #include <boost/signals2.hpp>
+
 #include <boost/core/lightweight_test.hpp>
+
 #include <boost/bind.hpp>
-#include <iostream>
-#include <vector>
-#include <algorithm>
+
 #include <cstdlib>
+#include <algorithm>
 #include <ctime>
 #include <functional>
+#include <iostream>
+#include <vector>
 
 std::vector<int> valuesOutput;
 bool ungrouped1 = false;

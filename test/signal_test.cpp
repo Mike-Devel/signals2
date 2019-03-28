@@ -10,10 +10,13 @@
 
 // For more information, see http://www.boost.org
 
+#include <boost/signals2.hpp>
+
+#include <boost/core/lightweight_test.hpp>
+
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>
-#include <boost/core/lightweight_test.hpp>
-#include <boost/signals2.hpp>
+
 #include <functional>
 #include <iostream>
 #include <typeinfo>

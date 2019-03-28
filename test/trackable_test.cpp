@@ -9,10 +9,13 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/trackable.hpp>
+
+#include <boost/core/lightweight_test.hpp>
+
 #include <boost/bind.hpp>
+
 #include <functional>
 
 
