@@ -179,13 +179,13 @@ namespace boost
           {
             void_shared_ptr_variant locked_object
             (
-              apply_visitor
+              std::visit
               (
                 detail::lock_weak_ptr_visitor(),
                 *it
               )
             );
-            if(apply_visitor(detail::expired_weak_ptr_visitor(), *it))
+            if(std::visit(detail::expired_weak_ptr_visitor(), *it))
             {
               nolock_disconnect(lock_arg);
               return;

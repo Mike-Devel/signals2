@@ -19,10 +19,8 @@
 
 #include <boost/throw_exception.hpp>
 
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/variant.hpp>
-
 #include <memory>
+#include <variant>
 
 #include <vector>
 
@@ -35,8 +33,8 @@ namespace boost
       class tracked_objects_visitor;
       class trackable_pointee;
 
-      typedef boost::variant<std::weak_ptr<trackable_pointee>, std::weak_ptr<void>, detail::foreign_void_weak_ptr > void_weak_ptr_variant;
-      typedef boost::variant<std::shared_ptr<void>, detail::foreign_void_shared_ptr > void_shared_ptr_variant;
+      typedef std::variant<std::weak_ptr<trackable_pointee>, std::weak_ptr<void>, detail::foreign_void_weak_ptr > void_weak_ptr_variant;
+      typedef std::variant<std::shared_ptr<void>, detail::foreign_void_shared_ptr > void_shared_ptr_variant;
       class lock_weak_ptr_visitor
       {
       public:
@@ -78,8 +76,8 @@ namespace boost
         tracked_container_type::const_iterator it;
         for(it = tracked_objects().begin(); it != tracked_objects().end(); ++it)
         {
-          locked_objects.push_back(apply_visitor(detail::lock_weak_ptr_visitor(), *it));
-          if(apply_visitor(detail::expired_weak_ptr_visitor(), *it))
+          locked_objects.push_back(std::visit(detail::lock_weak_ptr_visitor(), *it));
+          if(std::visit(detail::expired_weak_ptr_visitor(), *it))
           {
             boost::throw_exception(expired_slot());
           }
@@ -91,7 +89,7 @@ namespace boost
         tracked_container_type::const_iterator it;
         for(it = tracked_objects().begin(); it != tracked_objects().end(); ++it)
         {
-          if(apply_visitor(detail::expired_weak_ptr_visitor(), *it)) return true;
+          if(std::visit(detail::expired_weak_ptr_visitor(), *it)) return true;
         }
         return false;
       }
