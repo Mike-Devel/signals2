@@ -10,6 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
 #include <boost/signals2.hpp>
+#include <boost/function.hpp>
 //#include <boost/signals.hpp>
 
 typedef boost::signals2::signal<void (int),
