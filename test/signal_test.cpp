@@ -199,7 +199,7 @@ template<typename ResultType>
     signal_type sig;
     // attempting to work around msvc 7.1 bug by explicitly assigning to a function pointer
     ResultType (*fp)(const boost::signals2::connection &conn, int) = &disconnecting_slot<ResultType>;
-    slot_type myslot(fp, _1, 0);
+    slot_type myslot(fp, std::placeholders::_1, 0);
     sig.connect_extended(myslot);
     BOOST_TEST(sig.num_slots() == 1);
     sig();

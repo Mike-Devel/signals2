@@ -10,8 +10,12 @@
 
 // For more information, see http://www.boost.org
 
-#include <boost/core/lightweight_test.hpp>
 #include <boost/signals2.hpp>
+
+#include <boost/core/lightweight_test.hpp>
+
+#include <boost/ref.hpp>
+#include <boost/bind.hpp>
 
 typedef boost::signals2::signal<void ()> sig0_type;
 

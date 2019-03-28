@@ -61,7 +61,7 @@ int main(int, char*[])
   BOOST_TEST(s1(5) == 0);
   {
     std::shared_ptr<int> shorty(new int());
-    s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track(shorty));
+    s1.connect(sig_type::slot_type(swallow(), shorty.get(), std::placeholders::_1).track(shorty));
     BOOST_TEST(s1(5) == 5);
   }
   BOOST_TEST(s1(5) == 0);
@@ -73,7 +73,7 @@ int main(int, char*[])
 // does work on gcc 4.1.2
 //    sig_type::slot_type slot(swallow(), shorty.get(), _1);
     swallow myswallow;
-    sig_type::slot_type slot(myswallow, shorty.get(), _1);
+    sig_type::slot_type slot(myswallow, shorty.get(), std::placeholders::_1);
 
     slot.track(shorty);
     shorty.reset();
@@ -84,7 +84,7 @@ int main(int, char*[])
   // Test binding of a slot to another slot
   {
     std::shared_ptr<int> shorty(new int(2));
-    boost::signals2::slot<int (double)> other_slot(&myfunc, boost::cref(*shorty.get()), _1);
+    boost::signals2::slot<int (double)> other_slot(&myfunc, boost::cref(*shorty.get()), std::placeholders::_1);
     other_slot.track(shorty);
     connection = s1.connect(sig_type::slot_type(other_slot, 0.5).track(other_slot));
     BOOST_TEST(s1(3) == 2);
@@ -96,7 +96,7 @@ int main(int, char*[])
   {
     sig_type s2;
     s1.connect(s2);
-    s2.connect(sig_type::slot_type(&myfunc, _1, 0.7));
+    s2.connect(sig_type::slot_type(&myfunc, std::placeholders::_1, 0.7));
     BOOST_TEST(s1(4) == 4);
   }
   BOOST_TEST(s1(4) == 0);
@@ -105,7 +105,7 @@ int main(int, char*[])
   BOOST_TEST(s1(2) == 0);
   {
     std::shared_ptr<int> shorty((int*)(0));
-    s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track(shorty));
+    s1.connect(sig_type::slot_type(swallow(), shorty.get(), std::placeholders::_1).track(shorty));
     BOOST_TEST(s1(2) == 2);
   }
   BOOST_TEST(s1(2) == 0);
@@ -115,7 +115,7 @@ int main(int, char*[])
   BOOST_TEST(s1(5) == 0);
   {
     std::shared_ptr<int> shorty(new int());
-    s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track_foreign(shorty));
+    s1.connect(sig_type::slot_type(swallow(), shorty.get(), std::placeholders::_1).track_foreign(shorty));
     BOOST_TEST(s1(5) == 5);
   }
   BOOST_TEST(s1(5) == 0);
@@ -127,7 +127,7 @@ int main(int, char*[])
       (
         swallow(),
         shorty.get(),
-        _1
+		std::placeholders::_1
       ).track_foreign
       (
         std::weak_ptr<int>(shorty)
@@ -139,7 +139,7 @@ int main(int, char*[])
   // make sure tracking foreign shared_ptr<const void> works
   {
     std::shared_ptr<const void> shorty(new int());
-    s1.connect(sig_type::slot_type(swallow(), shorty.get(), _1).track_foreign(shorty));
+    s1.connect(sig_type::slot_type(swallow(), shorty.get(), std::placeholders::_1).track_foreign(shorty));
     BOOST_TEST(s1(5) == 5);
   }
   {
@@ -150,7 +150,7 @@ int main(int, char*[])
       (
         swallow(),
         shorty.get(),
-        _1
+		std::placeholders::_1
       ).track_foreign
       (
         std::weak_ptr<const void>(shorty)

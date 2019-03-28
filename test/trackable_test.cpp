@@ -83,7 +83,7 @@ int main(int, char*[])
   // Test multiple arg slot constructor
   {
     short_lived shorty;
-    s1.connect(sig_type::slot_type(swallow(), &shorty, _1));
+    s1.connect(sig_type::slot_type(swallow(), &shorty, std::placeholders::_1));
     BOOST_TEST(s1(5) == 5);
   }
   BOOST_TEST(s1(5) == 0);

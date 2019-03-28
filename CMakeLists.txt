@@ -18,8 +18,6 @@ find_package(Threads REQUIRED)
 
 target_link_libraries( boost_signals2
     INTERFACE
-		Boost::bind
-        Boost::core
         Boost::optional
         Boost::parameter
 		Threads::Threads

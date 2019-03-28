@@ -17,14 +17,33 @@
 #include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/detail/tracked_objects_visitor.hpp>
 
-#include <boost/bind.hpp>
-
-#include <boost/visit_each.hpp>
-
 #include <functional>
+#include <cstddef>
 
 namespace boost {
 namespace signals2 {
+namespace detail {
+
+//// forwading to boost core visit_each for boost types (via adl) if possible
+template<typename Visitor, typename T>
+inline auto internal_visit_each_impl(Visitor& visitor, const T& t, std::nullptr_t)-> decltype(visit_each(visitor, t))
+{
+	visit_each(visitor, t);
+}
+
+template<typename Visitor, typename T>
+inline auto internal_visit_each_impl(Visitor& visitor, const T& t, int*)
+{
+	visitor(t);
+}
+
+template<typename Visitor, typename T>
+inline void internal_visit_each(Visitor& visitor, const T& t)
+{
+	internal_visit_each_impl(visitor, t, nullptr);
+}
+}
+
 template<typename Signature, typename SlotFunction = std::function<Signature> >
 class slot;
 
@@ -66,7 +85,7 @@ public:
 	template<typename A1, typename A2, typename ... BindArgs>
 	slot(const A1& arg1, const A2& arg2, const BindArgs& ... args)
 	{
-		init_slot_function(boost::bind(arg1, arg2, args...));
+		init_slot_function(std::bind(arg1, arg2, args...),arg1,arg2,args...);
 	}
 	// invocation
 	R operator()(Args ... args)
@@ -121,17 +140,17 @@ public:
 	const slot_function_type& slot_function() const { return _slot_function; }
 	slot_function_type& slot_function() { return _slot_function; }
 private:
-	template<typename F>
-	void init_slot_function(const F& f)
+	template<typename F, class ...ARGS>
+	void init_slot_function(const F& f, const ARGS& ... args)
 	{
 		if constexpr (detail::is_signal<F>::value) {
 			_slot_function = typename F::weak_signal_type(f);
-		}
-		else {
+		} else {
 			_slot_function = f;
 		}
 		signals2::detail::tracked_objects_visitor visitor(this);
-		boost::visit_each(visitor, f);
+		signals2::detail::internal_visit_each(visitor, f);
+		(signals2::detail::internal_visit_each(visitor, args),...);
 	}
 
 	SlotFunction _slot_function;

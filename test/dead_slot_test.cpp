@@ -40,7 +40,7 @@ int main(int, char*[])
   sig_type s1;
   std::shared_ptr<with_constant> wc1(new with_constant(7));
 
-  do_delayed_connect(wc1, s1, sig_type::slot_type(&with_constant::add, wc1.get(), _1).track(wc1));
+  do_delayed_connect(wc1, s1, sig_type::slot_type(&with_constant::add, wc1.get(), std::placeholders::_1).track(wc1));
 
   return boost::report_errors();;
 }
