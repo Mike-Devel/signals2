@@ -13,21 +13,32 @@
 
 #include <boost/signals2/expired_slot.hpp>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
+#include <optional>
+#include <type_traits>
 
 namespace boost {
   namespace signals2 {
 
     template<typename T>
-      class optional_last_value
+    class optional_last_value
     {
     public:
-      typedef optional<T> result_type;
+		using result_type = std::conditional_t<
+			std::is_reference_v<T>, 
+			std::optional<
+				std::reference_wrapper<
+					std::remove_reference_t<T>
+			    >
+			>, 
+			std::optional <T>
+		>;
+      //typedef std::optional<T> result_type;
 
       template<typename InputIterator>
-        optional<T> operator()(InputIterator first, InputIterator last) const
+	  result_type operator()(InputIterator first, InputIterator last) const
       {
-        optional<T> value;
+		result_type value;
         while (first != last)
         {
 			try

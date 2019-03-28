@@ -17,10 +17,12 @@
 
 #include <boost/signals2/detail/auto_buffer.hpp>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 
+#include <optional>
 #include <cassert>
 #include <type_traits>
+#include <functional>
 
 namespace boost {
   namespace signals2 {
@@ -56,7 +58,16 @@ namespace boost {
             m_active_slot->inc_slot_refcount(lock);
         }
 
-        optional<ResultType> result;
+		using optional_result_t = std::conditional_t <
+			std::is_reference_v<ResultType>,
+			std::optional<
+				std::reference_wrapper<
+					std::remove_reference_t<ResultType>
+				>
+			>,
+			std::optional<ResultType>
+		>;
+		optional_result_t result;
         typedef auto_buffer<void_shared_ptr_variant, store_n_objects<10> > tracked_ptrs_type;
         tracked_ptrs_type tracked_ptrs;
         Function f;
@@ -94,7 +105,7 @@ namespace boost {
 			if (!cache->result) {
 				try
 				{
-				  cache->result.reset(cache->f(*iter));
+				  cache->result.emplace(cache->f(*iter));
 				}
 				catch(expired_slot &)
 				{
@@ -102,14 +113,14 @@ namespace boost {
 					throw;
 				}
 			}
-			return cache->result.get();
+			return cache->result.value();
 		}
 
 		value_type* operator->() {
 			if (!cache->result) {
 				try
 				{
-				  cache->result.reset(cache->f(*iter));
+				  cache->result.emplace(cache->f(*iter));
 				}
 					catch(expired_slot &)
 				{

@@ -12,9 +12,10 @@
 #define BOOST_SIGNALS2_SLOT_GROUPS_HPP
 
 #include <boost/signals2/connection.hpp>
-#include <boost/optional.hpp>
+
 #include <list>
 #include <map>
+#include <optional>
 #include <utility>
 #include <cassert>
 
@@ -25,7 +26,7 @@ namespace boost {
       template<typename Group>
       struct group_key
       {
-        typedef std::pair<enum slot_meta_group, boost::optional<Group> > type;
+        typedef std::pair<enum slot_meta_group, std::optional<Group> > type;
       };
       template<typename Group, typename GroupCompare>
       class group_key_less
@@ -39,7 +40,7 @@ namespace boost {
         {
           if(key1.first != key2.first) return key1.first < key2.first;
           if(key1.first != grouped_slots) return false;
-          return _group_compare(key1.second.get(), key2.second.get());
+          return _group_compare(key1.second.value(), key2.second.value());
         }
       private:
         GroupCompare _group_compare;
@@ -78,7 +79,7 @@ namespace boost {
             other_map_it != other._group_map.end();
             ++other_map_it, ++this_map_it)
           {
-            BOOST_ASSERT(this_map_it != _group_map.end());
+            assert(this_map_it != _group_map.end());
             this_map_it->second = this_list_it;
             typename list_type::const_iterator other_list_it = other.get_list_iterator(other_map_it);
             typename map_type::const_iterator other_next_map_it = other_map_it;

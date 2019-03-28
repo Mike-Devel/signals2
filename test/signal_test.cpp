@@ -244,7 +244,7 @@ test_typedefs_etc()
   typedef signal_type::slot_type slot_type;
 
   BOOST_TEST(typeid(signal_type::slot_result_type) == typeid(int));
-  BOOST_TEST(typeid(signal_type::result_type) == typeid(boost::optional<int>));
+  BOOST_TEST(typeid(signal_type::result_type) == typeid(std::optional<int>));
   BOOST_TEST(typeid(signal_type::arg<0>::type) == typeid(double));
   BOOST_TEST(typeid(signal_type::arg<1>::type) == typeid(long));
   BOOST_TEST(typeid(signal_type::arg<0>::type) == typeid(signal_type::first_argument_type));

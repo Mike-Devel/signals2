@@ -28,8 +28,11 @@ find_package(Threads REQUIRED)
 	target_link_libraries( ${executable_name}
 		PUBLIC
 			Boost::signals2
-			Boost::thread
-			Boost::timer
+			Boost::function
+			Boost::bind
+			Boost::optional
+			Boost::config
+			Boost::core
 			Boost::function
 			Threads::Threads
 	)

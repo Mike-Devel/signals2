@@ -13,7 +13,9 @@
 
 #include <boost/signals2/expired_slot.hpp>
 
-#include <boost/optional.hpp>
+#include <optional>
+#include <functional>
+#include <type_traits>
 
 #include <stdexcept>
 
@@ -32,15 +34,24 @@ namespace boost {
     class last_value {
     public:
       typedef T result_type;
+	  using optional_result_t = std::conditional_t <
+		  std::is_reference_v<result_type>,
+		  std::optional<
+		  std::reference_wrapper<
+		  std::remove_reference_t<result_type>
+		  >
+		  >,
+		  std::optional<result_type>
+	  >;
 
       template<typename InputIterator>
-      T operator()(InputIterator first, InputIterator last) const
+	  result_type operator()(InputIterator first, InputIterator last) const
       {
         if(first == last)
         {
-          boost::throw_exception(no_slots_error());
+          throw no_slots_error();
         }
-        optional<T> value;
+		optional_result_t value;
         while (first != last)
         {
           try
@@ -50,7 +61,7 @@ namespace boost {
           catch(const expired_slot &) {}
           ++first;
         }
-        if(value) return value.get();
+        if(value) return value.value();
         throw no_slots_error();
       }
     };
