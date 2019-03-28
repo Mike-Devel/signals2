@@ -17,8 +17,6 @@
 
 #include <boost/signals2/detail/variadic_arg_type.hpp>
 
-#include <boost/utility/enable_if.hpp>
-
 #include <type_traits>
 #include <tuple>
 
@@ -86,14 +84,14 @@ namespace boost
       private:
         template<typename Func, unsigned ... indices, typename ... Args>
           R m_invoke(Func &func, unsigned_meta_array<indices...>, const std::tuple<Args...> & args,
-            typename boost::disable_if<std::is_void<typename Func::result_type> >::type * = 0
+            std::enable_if_t<!std::is_void_v<typename Func::result_type> > * = 0
           ) const
         {
           return func(std::get<indices>(args)...);
         }
         template<typename Func, unsigned ... indices, typename ... Args>
           R m_invoke(Func &func, unsigned_meta_array<indices...>, const std::tuple<Args...> & args,
-            typename boost::enable_if<std::is_void<typename Func::result_type> >::type * = 0
+            std::enable_if_t<std::is_void_v<typename Func::result_type> > * = 0
           ) const
         {
           func(std::get<indices>(args)...);
@@ -105,7 +103,7 @@ namespace boost
         // on certain compilers (some versions of gcc and msvc)
         template<typename Func>
           R m_invoke(Func &func, unsigned_meta_array<>, const std::tuple<> &,
-            typename boost::enable_if<std::is_void<typename Func::result_type> >::type * = 0
+            std::enable_if_t<std::is_void_v<typename Func::result_type> > * = 0
           ) const
         {
           func();
