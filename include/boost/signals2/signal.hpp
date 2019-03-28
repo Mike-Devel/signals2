@@ -322,9 +322,13 @@ private:
 	};
 	// Destructor of invocation_janitor does some cleanup when a signal invocation completes.
 	// Code can't be put directly in signal's operator() due to complications from void return types.
-	class invocation_janitor : noncopyable {
+	class invocation_janitor {
 	public:
 		typedef signal_impl signal_type;
+
+		invocation_janitor(const invocation_janitor&) = delete;
+		invocation_janitor& operator=(const invocation_janitor&) = delete;
+
 		invocation_janitor
 		(
 			const slot_call_iterator_cache_type& cache,

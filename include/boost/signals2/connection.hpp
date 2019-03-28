@@ -20,11 +20,10 @@
 #include <boost/signals2/detail/null_output_iterator.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 
-#include <boost/noncopyable.hpp>
-
 #include <memory>
 #include <variant>
 #include <cassert>
+#include <mutex>
 
 
 namespace boost
@@ -39,7 +38,7 @@ namespace boost
       // has released its mutex.  Used to garbage
       // collect disconnected slots
       template<typename Mutex>
-      class garbage_collecting_lock: public noncopyable
+      class garbage_collecting_lock
       {
       public:
         garbage_collecting_lock(Mutex &m):
@@ -54,7 +53,7 @@ namespace boost
         // to insure it is destroyed after lock is
         // destroyed.
         auto_buffer<std::shared_ptr<void>, store_n_objects<10> > garbage;
-        unique_lock<Mutex> lock;
+        std::lock_guard<Mutex> lock;
       };
 
       class connection_body_base
