@@ -18,9 +18,8 @@
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 
-#include <boost/core/no_exceptions_support.hpp>
-
 #include <boost/optional.hpp>
+
 #include <cassert>
 #include <type_traits>
 
@@ -94,32 +93,30 @@ namespace boost {
 
 		reference operator*() {
 			if (!cache->result) {
-				BOOST_TRY
+				try
 				{
 				  cache->result.reset(cache->f(*iter));
 				}
-					BOOST_CATCH(expired_slot &)
+				catch(expired_slot &)
 				{
 					(*iter)->disconnect();
-					BOOST_RETHROW
+					throw;
 				}
-				BOOST_CATCH_END
 			}
 			return cache->result.get();
 		}
 
 		value_type* operator->() {
 			if (!cache->result) {
-				BOOST_TRY
+				try
 				{
 				  cache->result.reset(cache->f(*iter));
 				}
-					BOOST_CATCH(expired_slot &)
+					catch(expired_slot &)
 				{
 					(*iter)->disconnect();
-					BOOST_RETHROW
+					throw;
 				}
-				BOOST_CATCH_END
 			}
 			return &cache->result.get();
 		}

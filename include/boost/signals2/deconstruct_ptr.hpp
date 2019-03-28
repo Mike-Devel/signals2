@@ -18,7 +18,6 @@
 #include <boost/signals2/postconstructible.hpp>
 #include <boost/signals2/predestructible.hpp>
 
-#include <boost/core/no_exceptions_support.hpp>
 #include <memory>
 #include <cassert>
 
@@ -41,16 +40,15 @@ namespace boost
       }
       inline void do_predestruct(const predestructible *ptr)
       {
-        BOOST_TRY
+        try
         {
           predestructible *nonconst_ptr = const_cast<predestructible*>(ptr);
           nonconst_ptr->predestruct();
         }
-        BOOST_CATCH(...)
+        catch(...)
         {
           assert(false);
         }
-        BOOST_CATCH_END
       }
     }
 
