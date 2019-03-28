@@ -203,7 +203,7 @@ public:
 	template <typename T>
 	void disconnect(const T& slot)
 	{
-		typedef mpl::bool_<(is_convertible<T, group_type>::value)> is_group;
+		typedef std::bool_constant<std::is_convertible<T, group_type>::value> is_group;
 		do_disconnect(slot, is_group());
 	}
 	// emit signal
@@ -420,12 +420,12 @@ private:
 		nolock_force_unique_connection_list(lock);
 		return connection_body_type(new connection_body<group_key_type, slot_type, Mutex>(slot, _mutex));
 	}
-	void do_disconnect(const group_type& group, mpl::bool_<true> /* is_group */)
+	void do_disconnect(const group_type& group, std::bool_constant<true> /* is_group */)
 	{
 		disconnect(group);
 	}
 	template<typename T>
-	void do_disconnect(const T& slot, mpl::bool_<false> /* is_group */)
+	void do_disconnect(const T& slot, std::bool_constant<false> /* is_group */)
 	{
 		std::shared_ptr<invocation_state> local_state =
 			get_readable_state();
@@ -538,7 +538,8 @@ public:
 	typedef GroupCompare group_compare_type;
 	typedef typename impl_class::slot_call_iterator
 		slot_call_iterator;
-	typedef typename mpl::identity<R(Args...)>::type signature_type;
+
+	using signature_type = R(Args...);
 
 	template<unsigned n> class arg {
 	public:
