@@ -9,12 +9,13 @@
 
 // For more information, see http://www.boost.org
 
-#include <memory>
+#include <boost/signals2.hpp>
+
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+#include <memory>
 
 struct swallow {
   typedef int result_type;

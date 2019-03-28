@@ -30,6 +30,7 @@
 #include <boost/type_traits/is_void.hpp>
 
 #include <functional>
+#include <cassert>
 
 // R, T1, T2, ..., TN, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION \
@@ -352,7 +353,7 @@ private:
 										 bool grab_tracked,
 										 const typename connection_list_type::iterator& begin, unsigned count = 0) const
 	{
-		BOOST_ASSERT(_shared_state.unique());
+		assert(_shared_state.unique());
 		typename connection_list_type::iterator it;
 		unsigned i;
 		for (it = begin, i = 0;
@@ -374,7 +375,7 @@ private:
 	void nolock_cleanup_connections(garbage_collecting_lock<mutex_type>& lock,
 									bool grab_tracked, unsigned count) const
 	{
-		BOOST_ASSERT(_shared_state.unique());
+		assert(_shared_state.unique());
 		typename connection_list_type::iterator begin;
 		if (_garbage_collector_it == _shared_state->connection_bodies().end()) {
 			begin = _shared_state->connection_bodies().begin();
@@ -528,7 +529,7 @@ public:
 	public:
 		typedef typename detail::variadic_arg_type<n, Args...>::type type;
 	};
-	BOOST_STATIC_CONSTANT(int, arity = sizeof...(Args));
+	static constexpr int arity = sizeof...(Args);
 
 	signal(const combiner_type& combiner_arg = combiner_type(),
 		   const group_compare_type& group_compare = group_compare_type()) :

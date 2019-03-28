@@ -16,6 +16,7 @@
 #include <list>
 #include <map>
 #include <utility>
+#include <cassert>
 
 namespace boost {
   namespace signals2 {
@@ -145,10 +146,10 @@ namespace boost {
         }
         iterator erase(const group_key_type &key, const iterator &it)
         {
-          BOOST_ASSERT(it != _list.end());
+          assert(it != _list.end());
           map_iterator map_it = _group_map.lower_bound(key);
-          BOOST_ASSERT(map_it != _group_map.end());
-          BOOST_ASSERT(weakly_equivalent(map_it->first, key));
+          assert(map_it != _group_map.end());
+          assert(weakly_equivalent(map_it->first, key));
           if(map_it->second == it)
           {
             iterator next = it;

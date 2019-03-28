@@ -12,7 +12,6 @@
 #ifndef BOOST_SIGNALS2_SLOT_CALL_ITERATOR_HPP
 #define BOOST_SIGNALS2_SLOT_CALL_ITERATOR_HPP
 
-#include <boost/assert.hpp>
 #include <boost/aligned_storage.hpp>
 #include <boost/core/no_exceptions_support.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -24,6 +23,7 @@
 #include <boost/type_traits/add_reference.hpp>
 
 #include <boost/optional.hpp>
+#include <cassert>
 
 namespace boost {
   namespace signals2 {

@@ -20,7 +20,10 @@
 #include <boost/signals2/detail/null_output_iterator.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/signals2/slot.hpp>
+
 #include <memory>
+#include <variant>
+#include <cassert>
 
 
 namespace boost
@@ -109,7 +112,7 @@ namespace boost
         template<typename Mutex>
         void inc_slot_refcount(const garbage_collecting_lock<Mutex> &)
         {
-          BOOST_ASSERT(m_slot_refcount != 0);
+          assert(m_slot_refcount != 0);
           ++m_slot_refcount;
         }
         // if slot refcount decrements to zero due to this call,
@@ -119,7 +122,7 @@ namespace boost
         template<typename Mutex>
         void dec_slot_refcount(garbage_collecting_lock<Mutex> &lock_arg) const
         {
-          BOOST_ASSERT(m_slot_refcount != 0);
+          assert(m_slot_refcount != 0);
           if(--m_slot_refcount == 0)
           {
             lock_arg.add_trash(release_slot());

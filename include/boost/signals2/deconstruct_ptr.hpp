@@ -15,12 +15,12 @@
 #ifndef BOOST_SIGNALS2_DECONSTRUCT_PTR_HPP
 #define BOOST_SIGNALS2_DECONSTRUCT_PTR_HPP
 
-#include <boost/assert.hpp>
 #include <boost/checked_delete.hpp>
 #include <boost/core/no_exceptions_support.hpp>
 #include <boost/signals2/postconstructible.hpp>
 #include <boost/signals2/predestructible.hpp>
 #include <memory>
+#include <cassert>
 
 namespace boost
 {
@@ -48,7 +48,7 @@ namespace boost
         }
         BOOST_CATCH(...)
         {
-          BOOST_ASSERT(false);
+          assert(false);
         }
         BOOST_CATCH_END
       }

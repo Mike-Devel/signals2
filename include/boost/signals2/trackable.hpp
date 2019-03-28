@@ -16,7 +16,6 @@
 #ifndef BOOST_SIGNALS2_TRACKABLE_HPP
 #define BOOST_SIGNALS2_TRACKABLE_HPP
 
-#include <boost/assert.hpp>
 #include <memory>
 
 namespace boost {
