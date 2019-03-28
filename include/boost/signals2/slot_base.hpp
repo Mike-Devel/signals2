@@ -12,13 +12,18 @@
 #ifndef BOOST_SIGNALS2_SLOT_BASE_HPP
 #define BOOST_SIGNALS2_SLOT_BASE_HPP
 
-#include <memory>
-#include <boost/signals2/detail/foreign_ptr.hpp>
 #include <boost/signals2/expired_slot.hpp>
 #include <boost/signals2/signal_base.hpp>
+
+#include <boost/signals2/detail/foreign_ptr.hpp>
+
 #include <boost/throw_exception.hpp>
+
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
+
+#include <memory>
+
 #include <vector>
 
 namespace boost

@@ -12,19 +12,24 @@
 #ifndef BOOST_SIGNALS2_SLOT_HPP
 #define BOOST_SIGNALS2_SLOT_HPP
 
+#include <boost/signals2/slot_base.hpp>
 #include <boost/signals2/detail/variadic_arg_type.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/mpl/identity.hpp>
-#include <boost/ref.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/detail/tracked_objects_visitor.hpp>
-#include <boost/signals2/slot_base.hpp>
+
+#include <boost/bind.hpp>
+
+#include <boost/mpl/identity.hpp>
+
+#include <boost/ref.hpp>
+
 #include <boost/visit_each.hpp>
+
+#include <functional>
 
 namespace boost {
 namespace signals2 {
-template<typename Signature, typename SlotFunction = boost::function<Signature> >
+template<typename Signature, typename SlotFunction = std::function<Signature> >
 class slot;
 
 template< typename SlotFunction,

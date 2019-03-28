@@ -13,22 +13,23 @@
 #define BOOST_SIGNALS2_SIGNAL_HPP
 
 #include <boost/signals2/connection.hpp>
+#include <boost/signals2/optional_last_value.hpp>
+#include <boost/signals2/mutex.hpp>
+#include <boost/signals2/slot.hpp>
+
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/signals2/detail/replace_slot_function.hpp>
 #include <boost/signals2/detail/result_type_wrapper.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/detail/slot_groups.hpp>
 #include <boost/signals2/detail/slot_call_iterator.hpp>
-#include <boost/signals2/optional_last_value.hpp>
-#include <boost/signals2/mutex.hpp>
-#include <boost/signals2/slot.hpp>
-
-
 #include <boost/signals2/detail/variadic_arg_type.hpp>
 #include <boost/signals2/detail/variadic_slot_invoker.hpp>
+
 #include <boost/type_traits/function_traits.hpp>
-#include <boost/type_traits/is_void.hpp> 
-#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_void.hpp>
+
+#include <functional>
 
 // R, T1, T2, ..., TN, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION \
@@ -42,7 +43,7 @@ namespace boost {
       template<typename R, typename ... Args>
       class variadic_extended_signature<R(Args...)> {
       public:
-        typedef boost::function<R(const boost::signals2::connection&, Args...)> function_type;
+        typedef std::function<R(const boost::signals2::connection&, Args...)> function_type;
       };
 
   // helper for bound_extended_slot_function that handles specialization for void return
@@ -97,7 +98,8 @@ public:
 	template<typename T>
 	bool operator==(const T& other) const
 	{
-		return _fun == other;
+		auto fp = _fun.template target<T>();
+		return fp && *fp == other;
 	}
 private:
 	bound_extended_slot_function()
@@ -434,7 +436,7 @@ private:
 			 it != local_state->connection_bodies().end(); ++it) {
 			garbage_collecting_lock<connection_body_base> lock(**it);
 			if ((*it)->nolock_nograb_connected() == false) continue;
-			if ((*it)->slot().slot_function() == slot) {
+			if (auto target = (*it)->slot().slot_function().template target<T>(); target && *target == slot) {
 				(*it)->nolock_disconnect(lock);
 			} else {
 			  // check for wrapped extended slot
@@ -493,7 +495,7 @@ template<  typename Signature, typename Combiner, typename Group, typename Group
 class weak_signal;
 }
 
-template<typename Signature, typename Combiner = optional_last_value<typename boost::function_traits<Signature>::result_type>, typename Group = int, typename GroupCompare = std::less<Group>, typename SlotFunction = boost::function<Signature>, typename ExtendedSlotFunction = typename detail::variadic_extended_signature<Signature>::function_type, typename Mutex = signals2::mutex>
+template<typename Signature, typename Combiner = optional_last_value<typename boost::function_traits<Signature>::result_type>, typename Group = int, typename GroupCompare = std::less<Group>, typename SlotFunction = std::function<Signature>, typename ExtendedSlotFunction = typename detail::variadic_extended_signature<Signature>::function_type, typename Mutex = signals2::mutex>
 class signal;
 
 template<  typename Combiner, typename Group, typename GroupCompare, typename SlotFunction, typename ExtendedSlotFunction, typename Mutex, typename R, typename ... Args>

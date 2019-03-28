@@ -14,7 +14,6 @@
 #ifndef BOOST_SIGNALS2_CONNECTION_HPP
 #define BOOST_SIGNALS2_CONNECTION_HPP
 
-#include <boost/function.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>

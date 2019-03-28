@@ -11,8 +11,9 @@
 #ifndef BOOST_SIGNALS2_SHARED_CONNECTION_BLOCK_HPP
 #define BOOST_SIGNALS2_SHARED_CONNECTION_BLOCK_HPP
 
-#include <memory>
 #include <boost/signals2/connection.hpp>
+
+#include <memory>
 
 namespace boost
 {

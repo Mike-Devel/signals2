@@ -17,20 +17,22 @@
 #ifndef BOOST_SIGNALS2_SIGNAL_TYPE_HPP
 #define BOOST_SIGNALS2_SIGNAL_TYPE_HPP
 
+#include <boost/signals2/signal.hpp>
+
 #include <boost/parameter/config.hpp>
 
 #if BOOST_PARAMETER_MAX_ARITY < 7
 #error Define BOOST_PARAMETER_MAX_ARITY as 7 or greater.
 #endif
-
 #include <boost/parameter/template_keyword.hpp>
 #include <boost/parameter/parameters.hpp>
 #include <boost/parameter/required.hpp>
 #include <boost/parameter/optional.hpp>
 #include <boost/parameter/value_type.hpp>
+
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/function_traits.hpp>
-#include <boost/signals2/signal.hpp>
+
 #include <functional>
 
 namespace boost
@@ -95,7 +97,7 @@ namespace boost
         group_compare_type;
 
       typedef typename
-        parameter::value_type<args, keywords::tag::slot_function_type, function<signature_type> >::type
+        parameter::value_type<args, keywords::tag::slot_function_type, std::function<signature_type> >::type
         slot_function_type;
 
       typedef typename
