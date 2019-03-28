@@ -16,6 +16,7 @@
 
 #include <boost/signals2.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/function.hpp>
 
 // combiner that returns the number of slots invoked
 struct slot_counter {
@@ -60,7 +61,7 @@ public:
   {}
   void lock()
   {
-    BOOST_REQUIRE(recursion_count == 0);
+    BOOST_TEST(recursion_count == 0);
     ++recursion_count;
   }
   bool try_lock()
@@ -71,7 +72,7 @@ public:
   void unlock()
   {
     --recursion_count;
-    BOOST_REQUIRE(recursion_count == 0);
+    BOOST_TEST(recursion_count == 0);
   }
 };
 

@@ -8,6 +8,7 @@
 if(MSVC)
 	STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	add_definitions( /D_SILENCE_CXX17_SHARED_PTR_UNIQUE_DEPRECATION_WARNING /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS )
+	add_compile_options( /permissive- )
 else()
 	add_compile_options( -Wall )
 endif()
@@ -16,9 +17,6 @@ file( GLOB test_src_files *.cpp )
 
 list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/invocation_benchmark.cpp)
 list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/signals_vs_signals2_benchmark.cpp)
-list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/mutex_test.cpp)
-list(REMOVE_ITEM test_src_files ${CMAKE_CURRENT_LIST_DIR}/threading_models_test.cpp)
-
 
 find_package(Threads REQUIRED)
 
@@ -30,8 +28,9 @@ find_package(Threads REQUIRED)
 	target_link_libraries( ${executable_name}
 		PUBLIC
 			Boost::signals2
-#			Boost::test
-#			Boost::timer
+			Boost::thread
+			Boost::timer
+			Boost::function
 			Threads::Threads
 	)
 	add_test( NAME ${executable_name} COMMAND ${executable_name} )
@@ -40,10 +39,6 @@ endforeach()
 
 # checking that headerfiles compiles on its own (has all necessary includes)
 file( GLOB header_files ../include/boost/signals2/*.hpp )
-
-# some headerfiles don't work on their own by design
-list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/variadic_signal.hpp)
-list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/variadic_slot.hpp)
 
 foreach( file IN LISTS header_files )
 
@@ -68,10 +63,6 @@ endforeach()
 
 # checking that headerfiles compiles on its own (has all necessary includes)
 file( GLOB header_files ../include/boost/signals2/detail/*.hpp )
-
-# some headerfiles don't work on their own by design
-list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/detail/signal_template.hpp)
-list(REMOVE_ITEM header_files ${CMAKE_CURRENT_LIST_DIR}/../include/boost/signals2/detail/slot_template.hpp)
 
 foreach( file IN LISTS header_files )
 

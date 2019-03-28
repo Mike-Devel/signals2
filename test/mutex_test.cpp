@@ -94,7 +94,7 @@ void timed_test(F func, int secs)
     indirect_adapter<F> ifunc(func, monitor);
     monitor.start();
     boost::thread thrd(ifunc);
-    BOOST_REQUIRE(monitor.wait()); // Timed test didn't complete in time, possible deadlock
+    BOOST_TEST(monitor.wait()); // Timed test didn't complete in time, possible deadlock
 }
 
 template <typename M>
