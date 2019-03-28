@@ -14,11 +14,11 @@
 
 #include <boost/signals2/connection.hpp>
 
+#include <cassert>
 #include <list>
 #include <map>
 #include <optional>
 #include <utility>
-#include <cassert>
 
 namespace boost {
   namespace signals2 {

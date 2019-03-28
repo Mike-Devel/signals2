@@ -14,6 +14,7 @@
 #define BOOST_SIGNALS2_SLOT_HPP
 
 #include <boost/signals2/slot_base.hpp>
+
 #include <boost/signals2/detail/variadic_arg_type.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/detail/tracked_objects_visitor.hpp>

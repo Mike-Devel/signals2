@@ -14,7 +14,6 @@
 
 #include <boost/signals2/expired_slot.hpp>
 
-//#include <boost/optional.hpp>
 #include <optional>
 #include <type_traits>
 

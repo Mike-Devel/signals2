@@ -20,10 +20,10 @@
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/null_output_iterator.hpp>
 
-#include <memory>
-#include <variant>
 #include <cassert>
+#include <memory>
 #include <mutex>
+#include <variant>
 
 
 namespace boost

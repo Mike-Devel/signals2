@@ -19,8 +19,8 @@
 #include <boost/signals2/postconstructible.hpp>
 #include <boost/signals2/predestructible.hpp>
 
-#include <memory>
 #include <cassert>
+#include <memory>
 
 namespace boost
 {

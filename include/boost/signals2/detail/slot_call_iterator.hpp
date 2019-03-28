@@ -18,12 +18,10 @@
 
 #include <boost/signals2/detail/auto_buffer.hpp>
 
-//#include <boost/optional.hpp>
-
-#include <optional>
 #include <cassert>
-#include <type_traits>
 #include <functional>
+#include <optional>
+#include <type_traits>
 
 namespace boost {
   namespace signals2 {

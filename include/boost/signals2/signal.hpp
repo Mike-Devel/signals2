@@ -2,7 +2,6 @@
 
 // Copyright Frank Mori Hess 2007-2009
 // Copyright Mike Dev 2019.
-// 
 //
 // Use, modification and
 // distribution is subject to the Boost Software License, Version
@@ -14,10 +13,9 @@
 #ifndef BOOST_SIGNALS2_SIGNAL_HPP
 #define BOOST_SIGNALS2_SIGNAL_HPP
 
+#include <boost/signals2/slot.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/optional_last_value.hpp>
-#include <boost/signals2/mutex.hpp>
-#include <boost/signals2/slot.hpp>
 
 #include <boost/signals2/detail/replace_slot_function.hpp>
 #include <boost/signals2/detail/result_type_wrapper.hpp>
@@ -27,8 +25,9 @@
 #include <boost/signals2/detail/variadic_arg_type.hpp>
 #include <boost/signals2/detail/variadic_slot_invoker.hpp>
 
-#include <functional>
 #include <cassert>
+#include <functional>
+#include <mutex>
 
 // R, T1, T2, ..., TN, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION \
@@ -516,7 +515,7 @@ template<  typename Signature, typename Combiner, typename Group, typename Group
 class weak_signal;
 }
 
-template<typename Signature, typename Combiner = optional_last_value<detail::function_result_type_t<Signature>>, typename Group = int, typename GroupCompare = std::less<Group>, typename SlotFunction = std::function<Signature>, typename ExtendedSlotFunction = typename detail::variadic_extended_signature<Signature>::function_type, typename Mutex = signals2::mutex>
+template<typename Signature, typename Combiner = optional_last_value<detail::function_result_type_t<Signature>>, typename Group = int, typename GroupCompare = std::less<Group>, typename SlotFunction = std::function<Signature>, typename ExtendedSlotFunction = typename detail::variadic_extended_signature<Signature>::function_type, typename Mutex = std::mutex>
 class signal;
 
 template<  typename Combiner, typename Group, typename GroupCompare, typename SlotFunction, typename ExtendedSlotFunction, typename Mutex, typename R, typename ... Args>

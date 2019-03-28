@@ -15,11 +15,10 @@
 
 #include <boost/signals2/expired_slot.hpp>
 
-#include <optional>
 #include <functional>
-#include <type_traits>
-
+#include <optional>
 #include <stdexcept>
+#include <type_traits>
 
 namespace boost {
   namespace signals2 {

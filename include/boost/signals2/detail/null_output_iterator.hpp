@@ -13,8 +13,6 @@
 #ifndef BOOST_SIGNALS2_NULL_OUTPUT_ITERATOR_HPP
 #define BOOST_SIGNALS2_NULL_OUTPUT_ITERATOR_HPP
 
-//#include <boost/function_output_iterator.hpp>
-
 #include <iterator>
 
 namespace boost

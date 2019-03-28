@@ -107,7 +107,7 @@ namespace boost
           extended_slot_function_type;
 
       typedef typename
-        parameter::value_type<args, keywords::tag::mutex_type, mutex>::type mutex_type;
+        parameter::value_type<args, keywords::tag::mutex_type, std::mutex>::type mutex_type;
 
       typedef signal
         <

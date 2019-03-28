@@ -14,9 +14,10 @@
 #ifndef BOOST_SIGNALS2_TRACKED_OBJECTS_VISITOR_HPP
 #define BOOST_SIGNALS2_TRACKED_OBJECTS_VISITOR_HPP
 
-#include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/slot_base.hpp>
 #include <boost/signals2/trackable.hpp>
+
+#include <boost/signals2/detail/signals_common.hpp>
 
 #include <functional>
 #include <type_traits>

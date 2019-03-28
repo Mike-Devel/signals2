@@ -14,13 +14,13 @@
 #include <boost/signals2/detail/scope_guard.hpp>
 
 #include <algorithm>
+#include <cassert>
 #include <cstring>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
-#include <cassert>
-#include <memory>
+
 
 namespace boost
 {
