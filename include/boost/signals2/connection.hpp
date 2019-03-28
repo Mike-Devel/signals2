@@ -14,12 +14,13 @@
 #ifndef BOOST_SIGNALS2_CONNECTION_HPP
 #define BOOST_SIGNALS2_CONNECTION_HPP
 
-#include <boost/mpl/bool.hpp>
-#include <boost/noncopyable.hpp>
+#include <boost/signals2/slot.hpp>
+
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/null_output_iterator.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
-#include <boost/signals2/slot.hpp>
+
+#include <boost/noncopyable.hpp>
 
 #include <memory>
 #include <variant>

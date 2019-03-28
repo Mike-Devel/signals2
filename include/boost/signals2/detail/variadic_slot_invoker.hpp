@@ -15,11 +15,11 @@
 #ifndef BOOST_SIGNALS2_DETAIL_VARIADIC_SLOT_INVOKER_HPP
 #define BOOST_SIGNALS2_DETAIL_VARIADIC_SLOT_INVOKER_HPP
 
-#include <boost/type_traits/is_void.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/mpl/size_t.hpp>
 #include <boost/signals2/detail/variadic_arg_type.hpp>
 
+#include <boost/utility/enable_if.hpp>
+
+#include <type_traits>
 #include <tuple>
 
 // vc12 seems to erroneously report formal parameters as unreferenced (warning C4100)
@@ -76,7 +76,9 @@ namespace boost
         typedef R result_type;
 
         template<typename Func, typename ... Args, std::size_t N>
-        R operator()(Func &func, const std::tuple<Args...> & args, mpl::size_t<N>) const
+        //R operator()(Func &func, const std::tuple<Args...> & args, mpl::size_t<N>) const
+		R operator()(Func &func, const std::tuple<Args...> & args, std::integral_constant<std::size_t,N>) const
+
         {
           typedef typename make_unsigned_meta_array<N>::type indices_type;
           return m_invoke<Func>(func, indices_type(), args);
@@ -84,14 +86,14 @@ namespace boost
       private:
         template<typename Func, unsigned ... indices, typename ... Args>
           R m_invoke(Func &func, unsigned_meta_array<indices...>, const std::tuple<Args...> & args,
-            typename boost::disable_if<boost::is_void<typename Func::result_type> >::type * = 0
+            typename boost::disable_if<std::is_void<typename Func::result_type> >::type * = 0
           ) const
         {
           return func(std::get<indices>(args)...);
         }
         template<typename Func, unsigned ... indices, typename ... Args>
           R m_invoke(Func &func, unsigned_meta_array<indices...>, const std::tuple<Args...> & args,
-            typename boost::enable_if<boost::is_void<typename Func::result_type> >::type * = 0
+            typename boost::enable_if<std::is_void<typename Func::result_type> >::type * = 0
           ) const
         {
           func(std::get<indices>(args)...);
@@ -103,7 +105,7 @@ namespace boost
         // on certain compilers (some versions of gcc and msvc)
         template<typename Func>
           R m_invoke(Func &func, unsigned_meta_array<>, const std::tuple<> &,
-            typename boost::enable_if<boost::is_void<typename Func::result_type> >::type * = 0
+            typename boost::enable_if<std::is_void<typename Func::result_type> >::type * = 0
           ) const
         {
           func();
@@ -123,7 +125,7 @@ namespace boost
           result_type operator ()(const ConnectionBodyType &connectionBody) const
         {
           return call_with_tuple_args<result_type>()(connectionBody->slot().slot_function(),
-            _args, mpl::size_t<sizeof...(Args)>());
+            _args, std::integral_constant<std::size_t, sizeof...(Args)>());
         }
       private:
         std::tuple<Args& ...> _args;

@@ -18,13 +18,9 @@ find_package(Threads REQUIRED)
 
 target_link_libraries( boost_signals2
     INTERFACE
-        Boost::assert
 		Boost::bind
-        Boost::config
         Boost::core
-        Boost::function
         Boost::iterator
-        Boost::mpl
         Boost::optional
         Boost::parameter
         Boost::throw_exception

@@ -19,8 +19,6 @@
 
 #include <boost/bind.hpp>
 
-#include <boost/mpl/identity.hpp>
-
 #include <boost/ref.hpp>
 
 #include <boost/visit_each.hpp>
@@ -45,7 +43,8 @@ public:
 
 	typedef SlotFunction slot_function_type;
 	typedef R result_type;
-	typedef typename mpl::identity<R(Args...)>::type signature_type;
+	//typedef typename mpl::identity<R(Args...)>::type signature_type;
+	using signature_type = R(Args...);
 
 	template<unsigned n> class arg {
 	public:
