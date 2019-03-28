@@ -17,8 +17,6 @@
 
 #include <boost/signals2/detail/foreign_ptr.hpp>
 
-#include <boost/throw_exception.hpp>
-
 #include <memory>
 #include <variant>
 
@@ -79,7 +77,7 @@ namespace boost
           locked_objects.push_back(std::visit(detail::lock_weak_ptr_visitor(), *it));
           if(std::visit(detail::expired_weak_ptr_visitor(), *it))
           {
-            boost::throw_exception(expired_slot());
+            throw expired_slot();
           }
         }
         return locked_objects;
