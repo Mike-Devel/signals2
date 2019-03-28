@@ -13,8 +13,6 @@
 
 #include <boost/signals2/signal_base.hpp>
 
-#include <boost/ref.hpp>
-
 #include <type_traits>
 
 namespace boost {
@@ -28,19 +26,15 @@ namespace boost {
       // A slot can be a signal, a reference to a function object, or a
       // function object.
       struct signal_tag {};
-      struct reference_tag {};
       struct value_tag {};
 
       // Classify the given slot as a signal, a reference-to-slot, or a
       // standard slot
       template<typename S>
       class get_slot_tag {
-        typedef std::conditional_t<is_signal<S>::value,
-          signal_tag, value_tag> signal_or_value;
       public:
-        typedef typename std::conditional_t<is_reference_wrapper<S>::value,
-                            reference_tag,
-                            signal_or_value> type;
+        typedef std::conditional_t<is_signal<S>::value,
+          signal_tag, value_tag> type;
       };
 
       // Get the slot so that it can be copied
@@ -48,11 +42,6 @@ namespace boost {
       typename F::weak_signal_type
       get_invocable_slot(const F &signal, signal_tag)
       { return typename F::weak_signal_type(signal); }
-
-      template<typename F>
-      const F&
-      get_invocable_slot(const F& f, reference_tag)
-      { return f; }
 
       template<typename F>
       const F&
@@ -65,10 +54,7 @@ namespace boost {
       typename get_slot_tag<F>::type
       tag_type(const F&)
       {
-        typedef typename get_slot_tag<F>::type
-          the_tag_type;
-        the_tag_type tag = the_tag_type();
-        return tag;
+		  return typename get_slot_tag<F>::type{};
       }
     } // end namespace detail
   } // end namespace signals2

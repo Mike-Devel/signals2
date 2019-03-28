@@ -13,7 +13,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/trackable.hpp>
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
+#include <functional>
 
 
 struct short_lived : public boost::signals2::trackable {
@@ -76,13 +76,6 @@ int main(int, char*[])
   {
     short_lived shorty;
     s1.connect(boost::bind<int>(swallow(), &shorty, _1));
-    BOOST_TEST(s1(5) == 5);
-  }
-  BOOST_TEST(s1(5) == 0);
-  // Test auto-disconnection of trackable inside reference_wrapper
-  {
-    short_lived shorty;
-    s1.connect(boost::bind<int>(swallow(), boost::ref(shorty), _1));
     BOOST_TEST(s1(5) == 5);
   }
   BOOST_TEST(s1(5) == 0);

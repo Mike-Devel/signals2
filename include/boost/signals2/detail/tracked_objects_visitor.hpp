@@ -16,8 +16,7 @@
 #include <boost/signals2/slot_base.hpp>
 #include <boost/signals2/trackable.hpp>
 
-#include <boost/ref.hpp>
-
+#include <functional>
 #include <type_traits>
 
 namespace boost
@@ -26,6 +25,7 @@ namespace boost
   {
     namespace detail
     {
+
       // Visitor to collect tracked objects from a bound function.
       class tracked_objects_visitor
       {
@@ -35,13 +35,10 @@ namespace boost
         template<typename T>
         void operator()(const T& t) const
         {
-            if constexpr (is_reference_wrapper<T>::value ) {
-                m_visit_pointer(t.get_pointer());
-            }
-            else if constexpr (std::is_pointer<T>::value) {
+            if constexpr (std::is_pointer<T>::value) {
                 m_visit_pointer(t);
             } else {
-                m_visit_pointer(std::addressof(t));
+                m_visit_pointer(&t);
             }
         }
       private:

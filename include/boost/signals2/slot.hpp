@@ -19,8 +19,6 @@
 
 #include <boost/bind.hpp>
 
-#include <boost/ref.hpp>
-
 #include <boost/visit_each.hpp>
 
 #include <functional>
@@ -126,7 +124,12 @@ private:
 	template<typename F>
 	void init_slot_function(const F& f)
 	{
-		_slot_function = detail::get_invocable_slot(f, detail::tag_type(f));
+		if constexpr (detail::is_signal<F>::value) {
+			_slot_function = typename F::weak_signal_type(f);
+		}
+		else {
+			_slot_function = f;
+		}
 		signals2::detail::tracked_objects_visitor visitor(this);
 		boost::visit_each(visitor, f);
 	}
