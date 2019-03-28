@@ -20,7 +20,6 @@ target_link_libraries( boost_signals2
     INTERFACE
 		Boost::bind
         Boost::core
-        Boost::iterator
         Boost::optional
         Boost::parameter
         Boost::throw_exception

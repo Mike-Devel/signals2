@@ -12,18 +12,17 @@
 #ifndef BOOST_SIGNALS2_SLOT_CALL_ITERATOR_HPP
 #define BOOST_SIGNALS2_SLOT_CALL_ITERATOR_HPP
 
-#include <boost/aligned_storage.hpp>
-#include <boost/core/no_exceptions_support.hpp>
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/slot_base.hpp>
+
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
-#include <boost/type_traits/add_const.hpp>
-#include <boost/type_traits/add_reference.hpp>
+
+#include <boost/core/no_exceptions_support.hpp>
 
 #include <boost/optional.hpp>
 #include <cassert>
+#include <type_traits>
 
 namespace boost {
   namespace signals2 {
@@ -74,24 +73,17 @@ namespace boost {
       //   - caches the result of calling the slots
       template<typename Function, typename Iterator, typename ConnectionBody>
       class slot_call_iterator_t
-        : public boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
-        typename Function::result_type,
-        boost::single_pass_traversal_tag,
-        typename boost::add_reference<typename boost::add_const<typename Function::result_type>::type>::type >
       {
-        typedef boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
-          typename Function::result_type,
-          boost::single_pass_traversal_tag,
-          typename boost::add_reference<typename boost::add_const<typename Function::result_type>::type>::type >
-        inherited;
-
         typedef typename Function::result_type result_type;
 
         typedef slot_call_iterator_cache<result_type, Function> cache_type;
 
-        friend class boost::iterator_core_access;
+	  public:
+		  using value_type = std::decay_t<result_type>;
+		  using difference_type = std::uintptr_t;
+		  using reference = value_type & ;
+		  using iterator_category = std::input_iterator_tag;
 
-      public:
         slot_call_iterator_t(Iterator iter_in, Iterator end_in,
           cache_type &c):
           iter(iter_in), end(end_in),
@@ -100,35 +92,59 @@ namespace boost {
           lock_next_callable();
         }
 
-        typename inherited::reference
-        dereference() const
-        {
-          if (!cache->result) {
-            BOOST_TRY
-            {
-              cache->result.reset(cache->f(*iter));
-            }
-            BOOST_CATCH(expired_slot &)
-            {
-              (*iter)->disconnect();
-              BOOST_RETHROW
-            }
-            BOOST_CATCH_END
-          }
-          return cache->result.get();
-        }
+		reference operator*() {
+			if (!cache->result) {
+				BOOST_TRY
+				{
+				  cache->result.reset(cache->f(*iter));
+				}
+					BOOST_CATCH(expired_slot &)
+				{
+					(*iter)->disconnect();
+					BOOST_RETHROW
+				}
+				BOOST_CATCH_END
+			}
+			return cache->result.get();
+		}
 
-        void increment()
-        {
-          ++iter;
-          lock_next_callable();
-          cache->result.reset();
-        }
+		value_type* operator->() {
+			if (!cache->result) {
+				BOOST_TRY
+				{
+				  cache->result.reset(cache->f(*iter));
+				}
+					BOOST_CATCH(expired_slot &)
+				{
+					(*iter)->disconnect();
+					BOOST_RETHROW
+				}
+				BOOST_CATCH_END
+			}
+			return &cache->result.get();
+		}
 
-        bool equal(const slot_call_iterator_t& other) const
-        {
-          return iter == other.iter;
-        }
+		slot_call_iterator_t& operator++() {
+			++iter;
+			lock_next_callable();
+			cache->result.reset();
+			return *this;
+		}
+
+		slot_call_iterator_t operator++(int) {
+			slot_call_iterator_t copy = *this;
+			++iter;
+			lock_next_callable();
+			cache->result.reset();
+			return copy;
+		}
+
+		friend bool operator==(const slot_call_iterator_t& l, const slot_call_iterator_t& r) {
+			return l.iter == r.iter;
+		}
+		friend bool operator!=(const slot_call_iterator_t& l, const slot_call_iterator_t& r) {
+			return l.iter != r.iter;
+		}
 
       private:
         typedef garbage_collecting_lock<connection_body_base> lock_type;
