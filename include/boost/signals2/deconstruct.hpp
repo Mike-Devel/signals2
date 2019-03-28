@@ -16,6 +16,7 @@
 //  Copyright (c) 2007, 2008 Peter Dimov
 //  Copyright (c) 2008 Michael Marcin
 //  Copyright (c) 2009 Frank Mori Hess
+//  Copyright (c) 2019 Mike Dev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at

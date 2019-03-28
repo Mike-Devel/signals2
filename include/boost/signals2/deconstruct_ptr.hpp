@@ -6,6 +6,7 @@
 // boost::signals2::predestructible base classes.
 //
 // Copyright Frank Mori Hess 2007-2008.
+// Copyright Mike Dev 2019.
 //
 // Use, modification and
 // distribution is subject to the Boost Software License, Version

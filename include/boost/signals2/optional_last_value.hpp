@@ -2,6 +2,7 @@
 
 // Copyright Frank Mori Hess 2007-2008.
 // Copyright Douglas Gregor 2001-2003.
+// Copyright Mike Dev 2019.
 // Distributed under the Boost Software License, Version
 // 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)

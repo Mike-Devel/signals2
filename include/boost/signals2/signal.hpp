@@ -1,6 +1,8 @@
 //  A thread-safe version of Boost.Signals.
 
 // Copyright Frank Mori Hess 2007-2009
+// Copyright Mike Dev 2019.
+// 
 //
 // Use, modification and
 // distribution is subject to the Boost Software License, Version

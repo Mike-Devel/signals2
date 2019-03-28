@@ -2,6 +2,8 @@
   An output iterator which simply discards output.
 */
 // Copyright Frank Mori Hess 2008.
+// (C) Copyright Andrey Semashev 2017.
+// (C) Copyright Mike Dev 2019.
 // Distributed under the Boost Software License, Version
 // 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
