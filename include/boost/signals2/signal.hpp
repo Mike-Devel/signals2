@@ -26,9 +26,6 @@
 #include <boost/signals2/detail/variadic_arg_type.hpp>
 #include <boost/signals2/detail/variadic_slot_invoker.hpp>
 
-#include <boost/type_traits/function_traits.hpp>
-#include <boost/type_traits/is_void.hpp>
-
 #include <functional>
 #include <cassert>
 
@@ -492,11 +489,29 @@ private:
 	const std::shared_ptr<mutex_type> _mutex;
 };
 
+namespace helper {
+
+template<typename Function> struct function_traits;
+
+template<typename R, class ...ARGS>
+struct function_traits<R(*)(ARGS...)> {
+	using result_type = R;
+	static constexpr std::size_t arity = sizeof...(ARGS);
+};
+
+}
+
+template<typename Function>
+using function_result_type_t = typename helper::function_traits<std::add_pointer_t<Function>>::result_type;
+
+template<typename Function>
+constexpr std::size_t function_arity = helper::function_traits<std::add_pointer_t<Function>>::arity;
+
 template<  typename Signature, typename Combiner, typename Group, typename GroupCompare, typename SlotFunction, typename ExtendedSlotFunction, typename Mutex>
 class weak_signal;
 }
 
-template<typename Signature, typename Combiner = optional_last_value<typename boost::function_traits<Signature>::result_type>, typename Group = int, typename GroupCompare = std::less<Group>, typename SlotFunction = std::function<Signature>, typename ExtendedSlotFunction = typename detail::variadic_extended_signature<Signature>::function_type, typename Mutex = signals2::mutex>
+template<typename Signature, typename Combiner = optional_last_value<detail::function_result_type_t<Signature>>, typename Group = int, typename GroupCompare = std::less<Group>, typename SlotFunction = std::function<Signature>, typename ExtendedSlotFunction = typename detail::variadic_extended_signature<Signature>::function_type, typename Mutex = signals2::mutex>
 class signal;
 
 template<  typename Combiner, typename Group, typename GroupCompare, typename SlotFunction, typename ExtendedSlotFunction, typename Mutex, typename R, typename ... Args>

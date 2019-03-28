@@ -24,12 +24,10 @@
 //  See http://www.boost.org
 //  for more information
 
-#include <boost/type_traits/alignment_of.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/type_with_alignment.hpp>
 #include <cstddef>
 #include <memory>
 #include <new>
+#include <type_traits>
 
 namespace boost
 {
@@ -56,7 +54,7 @@ public:
     {
         if(!_postconstructed)
         {
-            adl_postconstruct(_sp, const_cast<typename boost::remove_const<T>::type *>(_sp.get()));
+            adl_postconstruct(_sp, const_cast<std::remove_const_t<T> *>(_sp.get()));
             _postconstructed = true;
         }
         return _sp;
@@ -66,7 +64,7 @@ public:
     {
         if(!_postconstructed)
         {
-            adl_postconstruct(_sp, const_cast<typename boost::remove_const<T>::type *>(_sp.get()),
+            adl_postconstruct(_sp, const_cast<std::remove_const_t<T> *>(_sp.get()),
                 std::forward<Args>(args)...);
             _postconstructed = true;
         }
@@ -84,20 +82,9 @@ private:
 namespace detail
 {
 
-template< std::size_t N, std::size_t A > struct sp_aligned_storage
-{
-    union type
-    {
-        char data_[ N ];
-        typename boost::type_with_alignment< A >::type align_;
-    };
-};
-
 template< class T > class deconstruct_deleter
 {
 private:
-
-    typedef typename sp_aligned_storage< sizeof( T ), ::boost::alignment_of< T >::value >::type storage_type;
 
     bool initialized_;
     T* storage_;
@@ -117,7 +104,7 @@ private:
         if (initialized_)
         {
             using boost::signals2::detail::adl_predestruct;
-            adl_predestruct(const_cast<typename boost::remove_const<T>::type *>(storage_));
+            adl_predestruct(const_cast<std::remove_const_t<T> *>(storage_));
             delete storage_;
             initialized_ = false;
         }

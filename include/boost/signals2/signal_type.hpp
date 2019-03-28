@@ -30,9 +30,6 @@
 #include <boost/parameter/optional.hpp>
 #include <boost/parameter/value_type.hpp>
 
-#include <boost/type_traits/is_function.hpp>
-#include <boost/type_traits/function_traits.hpp>
-
 #include <functional>
 
 namespace boost
@@ -79,13 +76,13 @@ namespace boost
       typedef typename parameter::value_type<args, keywords::tag::signature_type>::type
         signature_type;
 
-      typedef typename parameter::value_type
-        <
-          args,
-          keywords::tag::combiner_type,
-          optional_last_value
-            <
-              typename boost::function_traits<signature_type>::result_type
+	  typedef typename parameter::value_type
+		  <
+		  args,
+		  keywords::tag::combiner_type,
+		  optional_last_value
+		  <
+		  detail::function_result_type_t<signature_type>
             >
         >::type combiner_type;
 
@@ -105,7 +102,7 @@ namespace boost
           <
             args,
             keywords::tag::extended_slot_function_type,
-            typename detail::extended_signature<function_traits<signature_type>::arity, signature_type>::function_type
+            typename detail::extended_signature<detail::function_arity<signature_type>, signature_type>::function_type
           >::type
           extended_slot_function_type;
 

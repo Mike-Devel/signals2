@@ -23,7 +23,6 @@ target_link_libraries( boost_signals2
         Boost::optional
         Boost::parameter
         Boost::throw_exception
-        Boost::type_traits
         Boost::variant
 		Threads::Threads
 )
