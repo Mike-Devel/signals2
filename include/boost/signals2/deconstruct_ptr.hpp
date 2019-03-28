@@ -15,10 +15,10 @@
 #ifndef BOOST_SIGNALS2_DECONSTRUCT_PTR_HPP
 #define BOOST_SIGNALS2_DECONSTRUCT_PTR_HPP
 
-#include <boost/checked_delete.hpp>
-#include <boost/core/no_exceptions_support.hpp>
 #include <boost/signals2/postconstructible.hpp>
 #include <boost/signals2/predestructible.hpp>
+
+#include <boost/core/no_exceptions_support.hpp>
 #include <memory>
 #include <cassert>
 
@@ -60,7 +60,9 @@ namespace boost
       void operator()(const T *ptr) const
       {
         detail::do_predestruct(ptr);
-        checked_delete(ptr);
+		// make sure type is complete
+		(void) sizeof(T);
+        delete ptr;
       }
     };
 
